@@ -7,8 +7,9 @@ import { fehlertext } from '../fehler.js';
 import { bearbeitbareListe } from '../liste.js';
 import { segmentBalken } from '../diagramm.js';
 import {
-  cent, fixkostenMonatCent, ladeHaushalt, ladeSparziele, monatsuebersicht, speichereMiete,
+  cent, fixkostenMonatCent, ladeHaushalt, ladeSparziele, monatsuebersicht, speichereMiete, haushaltCsv,
 } from '../daten/haushalt.js';
+import { exportKarte } from '../export.js';
 import { speichereZeile, loescheZeile } from '../daten/tabellen.js';
 
 // Farben im Diagramm und in der Übersicht (Reihenfolge fest, siehe css/style.css)
@@ -269,6 +270,11 @@ export function haushaltsbuchSeite(container, kontext) {
       sparen,
       miete,
       sparziele,
+      exportKarte({
+        beschreibung: 'Alle Einträge des Haushaltsbuchs als Tabelle für Excel oder Numbers.',
+        namensanfang: 'haushaltsbuch',
+        erstellen: () => haushaltCsv(d),
+      }),
     );
   }
 

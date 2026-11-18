@@ -13,7 +13,7 @@ Frontend mit HTML, CSS und JavaScript ohne Build Schritt, Login und Datenbank ü
 | Startseite | erledigt |
 | Haushaltsbuch | erledigt |
 | Meilenstand | erledigt |
-| Export | offen |
+| Export | erledigt |
 
 ## Datenbank
 
@@ -47,6 +47,13 @@ Beim Anlegen eines neuen Benutzerkontos werden automatisch 29 Programme mit den 
    Das Gesamtverhältnis in der Tabelle ergibt sich daraus (bei Miles & More 3:1).
 4. Aktueller Stand ist der Eintrag mit dem jüngsten Datum. Die Kachel auf der Startseite zeigt
    den zuletzt angelegten oder geänderten Eintrag.
+
+## Export
+
+Haushaltsbuch und Meilenstand haben jeweils unten eine Karte „Export“ (beim Meilenstand im Reiter Stände).
+Die CSV Dateien sind für Excel und Numbers mit deutschen Einstellungen gemacht: Semikolon als Trennzeichen,
+Komma bei Beträgen, Datum als TT.MM.JJJJ. Texte, die mit = + - oder @ beginnen, bekommen ein ' davor,
+damit Tabellenprogramme sie nicht als Formel ausführen.
 
 ## Einrichtung
 
@@ -91,4 +98,5 @@ Danach im Browser `http://localhost:8080` öffnen.
 | `js/daten/tabellen.js` | Gemeinsames Laden, Speichern und Löschen |
 | `js/daten/programme.js` | Regeln für Transferwege und Umrechner (ohne Datenbank, einzeln testbar) |
 | `js/fehler.js` | Deutsche Fehlermeldungen |
+| `js/export.js` | CSV Export (Semikolon, Komma bei Beträgen, UTF-8) |
 | `vendor/supabase.js` | Lokale Kopie von supabase-js 2.119.1 (MIT Lizenz) |

@@ -3,6 +3,7 @@
 import { db } from '../supabase.js';
 import { euroAusCent, monatsname } from '../format.js';
 import { abfrage } from './tabellen.js';
+import { csvText, textZelle, betragZelle } from '../export.js';
 
 export function cent(wert) {
   return Math.round(Number(wert) * 100);
@@ -56,4 +57,27 @@ export async function ladeSparziele() {
 export async function speichereMiete(userId, werte) {
   const { error } = await db.from('miete').upsert({ user_id: userId, ...werte });
   if (error) throw error;
+}
+
+/** CSV mit allen Einträgen des Haushaltsbuchs (für den Export) */
+export function haushaltCsv({ einkommen, fixkosten, sparen, miete, sparziele }) {
+  if (!einkommen.length && !fixkosten.length && !sparen.length && !miete && !sparziele.length) {
+    return { leer: 'Noch nichts zum Exportieren.' };
+  }
+  const zeilen = [
+    ...einkommen.map((z) => ['Einkommen', textZelle(z.bezeichnung), betragZelle(z.betrag), 'monatlich', betragZelle(z.betrag), '', '']),
+    ...fixkosten.map((z) => [
+      'Fixkosten', textZelle(z.bezeichnung), betragZelle(z.betrag),
+      z.intervall === 'jaehrlich' ? 'jährlich' : 'monatlich', betragZelle(fixkostenMonatCent(z) / 100), '', '',
+    ]),
+    ...sparen.map((z) => ['Sparen', textZelle(z.bezeichnung), betragZelle(z.betrag), 'monatlich', betragZelle(z.betrag), '', '']),
+    ...(miete ? [
+      ['Miete', 'Gesamtmiete', betragZelle(miete.gesamtmiete), 'monatlich', '', '', ''],
+      ['Miete', 'Mein Anteil', betragZelle(miete.mein_anteil), 'monatlich', betragZelle(miete.mein_anteil), '', ''],
+    ] : []),
+    ...sparziele.map((z) => ['Sparziel', textZelle(z.name), '', '', '', betragZelle(z.zielbetrag), betragZelle(z.bisher_gespart)]),
+  ];
+  return {
+    text: csvText(['Bereich', 'Bezeichnung', 'Betrag', 'Intervall', 'Betrag pro Monat', 'Zielbetrag', 'Bisher gespart'], zeilen),
+  };
 }

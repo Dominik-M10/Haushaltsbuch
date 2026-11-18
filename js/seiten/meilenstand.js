@@ -10,8 +10,9 @@ import { fehlertext } from '../fehler.js';
 import { bearbeitbareListe } from '../liste.js';
 import { linienDiagramm } from '../liniendiagramm.js';
 import {
-  ladeMeilenDaten, speichereProgramm, loescheProgramm, speichereStand, loescheStand, speichereZiel, loescheZiel,
+  ladeMeilenDaten, speichereProgramm, loescheProgramm, speichereStand, loescheStand, speichereZiel, loescheZiel, meilenCsv,
 } from '../daten/meilen.js';
+import { exportKarte } from '../export.js';
 import {
   QUELLEN, TYPEN, einheit, erreichbareProgramme, umrechnen, zuordnungText, verhaeltnisText, verlauf,
 } from '../daten/programme.js';
@@ -111,7 +112,16 @@ export function meilenstandSeite(container, kontext) {
     };
     if (ansicht === 'umrechner') inhalt.replaceChildren(umrechnerKarte(daten));
     else if (ansicht === 'programme') inhalt.replaceChildren(...programmeAnsicht(daten));
-    else inhalt.replaceChildren(staendeKarte(daten, aendern));
+    else {
+      inhalt.replaceChildren(
+        staendeKarte(daten, aendern),
+        exportKarte({
+          beschreibung: 'Alle Zwischenstände mit Datum, Stand, Differenz und Notiz als Tabelle für Excel oder Numbers.',
+          namensanfang: 'meilenstaende',
+          erstellen: () => meilenCsv(daten),
+        }),
+      );
+    }
   });
 }
 

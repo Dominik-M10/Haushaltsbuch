@@ -1,8 +1,9 @@
 // Daten für den Meilenstand: Programme, Zwischenstände und Meilenziele.
 import { db } from '../supabase.js';
 import { datum, zahl } from '../format.js';
-import { einheit } from './programme.js';
+import { einheit, verlauf } from './programme.js';
 import { abfrage, speichereZeile, loescheZeile } from './tabellen.js';
+import { csvText, textZelle, zahlZelle } from '../export.js';
 
 export { einheit };
 
@@ -49,5 +50,22 @@ export async function kurzinfoMeilen() {
     beschriftung: 'Zuletzt geändert',
     wert: `${zahl(stand.stand)} ${einheit(stand.programme.typ)}`,
     zusatz: `${stand.programme.name} · Stand vom ${datum(stand.datum)}`,
+  };
+}
+
+/** CSV mit allen Zwischenständen, nach Programm und Datum sortiert (für den Export) */
+export function meilenCsv({ programme, staende }) {
+  if (!staende.length) return { leer: 'Noch keine Zwischenstände zum Exportieren.' };
+  const zeilen = [];
+  for (const p of [...programme].sort((a, b) => a.name.localeCompare(b.name, 'de'))) {
+    for (const s of verlauf(staende, p.id)) {
+      zeilen.push([
+        textZelle(p.name), p.typ, datum(s.datum), zahlZelle(s.stand), einheit(p.typ),
+        s.differenz == null ? '' : zahlZelle(s.differenz), textZelle(s.notiz),
+      ]);
+    }
+  }
+  return {
+    text: csvText(['Programm', 'Typ', 'Datum', 'Stand', 'Einheit', 'Differenz zum vorherigen', 'Notiz'], zeilen),
   };
 }
