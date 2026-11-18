@@ -1,0 +1,254 @@
+/* =====================================================================
+   Haushaltsbuch: Gestaltung
+   Mobil zuerst, ab 768 px breiter. Dunkelmodus folgt dem Gerät.
+   ===================================================================== */
+
+:root {
+  color-scheme: light dark;
+
+  --bg: #f3f5f7;
+  --flaeche: #ffffff;
+  --flaeche-2: #eef1f4;
+  --text: #15191e;
+  --text-leise: #5b6573;
+  --rand: #d9dee5;
+  --akzent: #0f766e;
+  --akzent-text: #ffffff;
+  --akzent-weich: #ccfbf1;
+  --fehler: #b42318;
+  --fehler-weich: #fef3f2;
+  --erfolg: #067647;
+  --erfolg-weich: #ecfdf3;
+  --schatten: 0 1px 2px rgb(16 24 40 / 0.06), 0 1px 3px rgb(16 24 40 / 0.1);
+
+  --radius: 14px;
+  --radius-klein: 10px;
+  --abstand: 16px;
+  --schrift: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0f1216;
+    --flaeche: #181c22;
+    --flaeche-2: #20252d;
+    --text: #e8ebef;
+    --text-leise: #9aa4b2;
+    --rand: #2c333d;
+    --akzent: #2dd4bf;
+    --akzent-text: #04201c;
+    --akzent-weich: #123a36;
+    --fehler: #f97066;
+    --fehler-weich: #3a1a17;
+    --erfolg: #47cd89;
+    --erfolg-weich: #10301f;
+    --schatten: none;
+  }
+}
+
+/* ---------- Grundlagen ---------- */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--schrift);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  /* Abstand zu Notch und Home Leiste auf dem iPhone */
+  padding:
+    env(safe-area-inset-top)
+    env(safe-area-inset-right)
+    env(safe-area-inset-bottom)
+    env(safe-area-inset-left);
+}
+
+[hidden] { display: none !important; }
+
+h1, h2, h3 { line-height: 1.25; margin: 0; }
+h1 { font-size: 1.375rem; }
+h2 { font-size: 1.125rem; }
+
+a { color: var(--akzent); }
+
+/* Eingabefelder mindestens 16 px, damit Safari auf dem iPhone nicht hineinzoomt */
+input, select, textarea, button {
+  font: inherit;
+  font-size: max(16px, 1rem);
+  color: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--akzent);
+  outline-offset: 2px;
+}
+
+.app {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: var(--abstand);
+}
+
+@media (min-width: 768px) {
+  .app {
+    max-width: 64rem;
+    padding: 24px 32px;
+  }
+}
+
+@media (min-width: 1200px) {
+  .app { max-width: 76rem; }
+}
+
+.laden,
+.leise {
+  color: var(--text-leise);
+}
+
+/* ---------- Kopfzeile ---------- */
+
+.kopf {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.kopf-titel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+
+/* ---------- Karten ---------- */
+
+.karte {
+  background: var(--flaeche);
+  border: 1px solid var(--rand);
+  border-radius: var(--radius);
+  box-shadow: var(--schatten);
+  padding: 20px;
+}
+
+/* ---------- Knöpfe ---------- */
+
+.knopf {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+  padding: 10px 18px;
+  border: 1px solid var(--rand);
+  border-radius: var(--radius-klein);
+  background: var(--flaeche);
+  color: var(--text);
+  font-weight: 600;
+  line-height: 1.2;
+  text-decoration: none;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+
+.knopf:hover { background: var(--flaeche-2); }
+
+.knopf.primaer {
+  background: var(--akzent);
+  border-color: var(--akzent);
+  color: var(--akzent-text);
+}
+
+.knopf.primaer:hover { filter: brightness(1.08); }
+
+.knopf:disabled {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.knopf.breit { width: 100%; }
+
+/* ---------- Formulare ---------- */
+
+.formular {
+  display: grid;
+  gap: 16px;
+}
+
+.feld {
+  display: grid;
+  gap: 6px;
+}
+
+.feld-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-leise);
+}
+
+.eingabe {
+  width: 100%;
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 1px solid var(--rand);
+  border-radius: var(--radius-klein);
+  background: var(--flaeche);
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+.eingabe:focus {
+  outline: 2px solid var(--akzent);
+  outline-offset: 0;
+  border-color: transparent;
+}
+
+.fehlermeldung {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-klein);
+  background: var(--fehler-weich);
+  color: var(--fehler);
+  font-weight: 500;
+}
+
+/* ---------- Login ---------- */
+
+.login {
+  min-height: calc(100dvh - 2 * var(--abstand) - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+  display: grid;
+  place-items: center;
+}
+
+.login-karte {
+  width: 100%;
+  max-width: 24rem;
+  padding: 28px 22px;
+}
+
+.login-kopf {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 24px;
+  text-align: center;
+}
+
+.login-logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+}

@@ -9,7 +9,7 @@ Frontend mit HTML, CSS und JavaScript ohne Build Schritt, Login und Datenbank ü
 |---|---|
 | Datenmodell | erledigt |
 | SQL (Tabellen, Row Level Security, Vorbelegung) | erledigt |
-| Login | offen |
+| Login | erledigt |
 | Startseite | offen |
 | Haushaltsbuch | offen |
 | Meilenstand | offen |
@@ -43,3 +43,26 @@ Beim Anlegen eines neuen Benutzerkontos werden automatisch 29 Programme mit den 
 1. Im Supabase Dashboard unter Authentication ein Benutzerkonto mit Mailadresse und Passwort anlegen.
    Die Programmliste wird dabei automatisch angelegt.
 2. In den Auth Einstellungen die Registrierung neuer Benutzer abschalten, damit sich niemand sonst ein Konto anlegen kann.
+
+## Lokal ausprobieren
+
+Die App muss über einen Webserver geöffnet werden. Ein Doppelklick auf `index.html` reicht nicht,
+weil Browser JavaScript Module aus lokalen Dateien blockieren. Im Projektordner zum Beispiel:
+
+```bash
+python3 -m http.server 8080
+```
+
+Danach im Browser `http://localhost:8080` öffnen.
+
+## Aufbau
+
+| Pfad | Inhalt |
+|---|---|
+| `index.html` | Einzige HTML Seite, lädt Supabase und die App |
+| `manifest.webmanifest`, `icons/` | Installation auf dem Home Bildschirm |
+| `css/style.css` | Gestaltung, mobil zuerst, Dunkelmodus nach Geräteeinstellung |
+| `js/config.js` | Adresse und öffentlicher Schlüssel des Supabase Projekts |
+| `js/app.js` | Anmeldestatus und Seitenwechsel über die Adresse nach `#` |
+| `js/seiten/` | Eine Datei pro Seite |
+| `vendor/supabase.js` | Lokale Kopie von supabase-js 2.119.1 (MIT Lizenz) |
