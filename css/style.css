@@ -21,6 +21,13 @@
   --erfolg-weich: #ecfdf3;
   --schatten: 0 1px 2px rgb(16 24 40 / 0.06), 0 1px 3px rgb(16 24 40 / 0.1);
 
+  /* Diagrammfarben: feste Reihenfolge, auf Farbsehschwäche geprüft */
+  --serie-1: #2a78d6;
+  --serie-2: #eb6834;
+  --serie-3: #1baf7a;
+  --serie-4: #eda100;
+  --text-auf-serie-4: #0b0b0b;
+
   --radius: 14px;
   --radius-klein: 10px;
   --abstand: 16px;
@@ -43,6 +50,12 @@
     --erfolg: #47cd89;
     --erfolg-weich: #10301f;
     --schatten: none;
+
+    --serie-1: #3987e5;
+    --serie-2: #d95926;
+    --serie-3: #199e70;
+    --serie-4: #c98500;
+    --text-auf-serie-4: #ffffff;
   }
 }
 
@@ -411,4 +424,339 @@ input, select, textarea, button {
 @media (prefers-reduced-motion: reduce) {
   .kachel { transition: none; }
   .kachel:active { transform: none; }
+}
+
+/* =====================================================================
+   Bereiche, Listen und Formulare (Haushaltsbuch, später Meilenstand)
+   ===================================================================== */
+
+.raster {
+  display: grid;
+  gap: 16px;
+  align-items: start;
+}
+
+@media (min-width: 800px) {
+  .raster { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .raster > .breit { grid-column: 1 / -1; }
+}
+
+.bereich {
+  display: grid;
+  gap: 14px;
+  min-width: 0;
+}
+
+.bereich > p { margin: 0; }
+
+.bereich-kopf {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.bereich-summe {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.bereich-summe.leise { font-weight: 400; }
+
+.warnhinweis {
+  margin: 0;
+  padding: 10px 12px;
+  border-radius: var(--radius-klein);
+  background: var(--fehler-weich);
+  color: var(--fehler);
+}
+
+/* ---------- Liste ---------- */
+
+.liste {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+}
+
+.liste > li + li { border-top: 1px solid var(--rand); }
+
+.liste-leer {
+  padding: 4px 0;
+  color: var(--text-leise);
+}
+
+.zeile {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  column-gap: 12px;
+  row-gap: 8px;
+  width: 100%;
+  min-height: 52px;
+  padding: 10px 4px;
+  border: 0;
+  background: none;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+  border-radius: 8px;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.zeile:hover { background: var(--flaeche-2); }
+
+.zeile-text {
+  display: grid;
+  min-width: 0;
+}
+
+.zeile-titel {
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+.zeile-zusatz {
+  font-size: 0.9375rem;
+  color: var(--text-leise);
+}
+
+.zeile-wert {
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.zeile > .fortschritt { grid-column: 1 / -1; }
+
+.liste-formular { padding: 12px 0; }
+
+.zeilen-formular {
+  gap: 12px;
+  padding: 14px;
+  border-radius: var(--radius-klein);
+  background: var(--flaeche-2);
+}
+
+.zeilen-formular .eingabe { background: var(--flaeche); }
+
+.knopfreihe {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.knopfreihe .gefahr { margin-left: auto; }
+
+.knopf.gefahr {
+  color: var(--fehler);
+  border-color: var(--fehler);
+  background: transparent;
+}
+
+.knopf.neu { justify-self: start; }
+
+.feld-hinweis {
+  font-size: 0.875rem;
+  color: var(--text-leise);
+}
+
+textarea.eingabe { resize: vertical; }
+
+/* Auswahlfeld mit eigenem Pfeil, in allen Browsern gleich */
+.auswahl-huelle {
+  position: relative;
+  display: block;
+}
+
+.auswahl-huelle::after {
+  content: "";
+  position: absolute;
+  right: 18px;
+  top: 50%;
+  width: 8px;
+  height: 8px;
+  margin-top: -6px;
+  border: solid var(--text-leise);
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  pointer-events: none;
+}
+
+.auswahl-huelle .eingabe { padding-right: 44px; }
+
+/* ---------- Werte (Name und Betrag untereinander) ---------- */
+
+.werte {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+}
+
+.werte > div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.werte dt { color: var(--text-leise); }
+
+.werte dd {
+  margin: 0;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- Monatsübersicht ---------- */
+
+.uebersicht {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.uebersicht th,
+.uebersicht td {
+  padding: 8px 0;
+  border-bottom: 1px solid var(--rand);
+}
+
+.uebersicht th {
+  text-align: left;
+  font-weight: 400;
+}
+
+.uebersicht td {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.uebersicht tfoot th,
+.uebersicht tfoot td {
+  border-bottom: 0;
+  padding-top: 12px;
+  font-weight: 700;
+  font-size: 1.125rem;
+}
+
+.uebersicht .negativ { color: var(--fehler); }
+
+/* ---------- Diagramm: segmentierter Balken ---------- */
+
+.serie-1 { --farbe: var(--serie-1); }
+.serie-2 { --farbe: var(--serie-2); }
+.serie-3 { --farbe: var(--serie-3); }
+.serie-4 { --farbe: var(--serie-4); }
+
+.legende-farbe {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  margin-right: 8px;
+  border-radius: 3px;
+  background: var(--farbe, transparent);
+  vertical-align: -1px;
+}
+
+.diagramm {
+  position: relative;
+}
+
+.segmente {
+  display: flex;
+  gap: 2px; /* Lücke in Hintergrundfarbe zwischen den Teilen */
+  height: 28px;
+}
+
+.segment {
+  /* Breite nur aus dem Betrag (flex-grow im HTML), daher kein Innenabstand am Block */
+  flex: 1 1 0;
+  min-width: 2px;
+  display: flex;
+  align-items: center;
+  padding: 0;
+  border-radius: 4px;
+  background: var(--farbe);
+  color: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  white-space: nowrap;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.segment.serie-4 { color: var(--text-auf-serie-4); }
+
+.segment-text { padding: 0 8px; }
+
+.segment:hover,
+.segment.aktiv { filter: brightness(1.12); }
+
+.segment:focus-visible {
+  outline: 2px solid var(--text);
+  outline-offset: 2px;
+}
+
+.diagramm-tooltip {
+  /* erscheint über dem Balken und liegt kurz über dem Text darüber */
+  position: absolute;
+  bottom: calc(100% + 6px);
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 5px 10px;
+  border-radius: 8px;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 0.875rem;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.diagramm-tooltip strong { font-size: 0.9375rem; }
+
+.legende {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 18px;
+  font-size: 0.9375rem;
+}
+
+.legende li {
+  display: inline-flex;
+  align-items: center;
+}
+
+.legende-anteil {
+  margin-left: 6px;
+  color: var(--text-leise);
+}
+
+/* ---------- Fortschrittsbalken ---------- */
+
+.fortschritt {
+  display: block;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--akzent-weich);
+  overflow: hidden;
+}
+
+.fortschritt-balken {
+  display: block;
+  height: 100%;
+  border-radius: 4px;
+  background: var(--akzent);
+}
+
+.fortschritt.erreicht .fortschritt-balken { background: var(--erfolg); }
+
+@media (forced-colors: active) {
+  .segment, .legende-farbe, .fortschritt-balken { forced-color-adjust: none; }
 }

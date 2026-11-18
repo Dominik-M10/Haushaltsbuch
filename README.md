@@ -11,7 +11,7 @@ Frontend mit HTML, CSS und JavaScript ohne Build Schritt, Login und Datenbank ü
 | SQL (Tabellen, Row Level Security, Vorbelegung) | erledigt |
 | Login | erledigt |
 | Startseite | erledigt |
-| Haushaltsbuch | offen |
+| Haushaltsbuch | erledigt |
 | Meilenstand | offen |
 | Export | offen |
 
@@ -74,4 +74,8 @@ Danach im Browser `http://localhost:8080` öffnen.
 | `js/seiten/` | Eine Datei pro Seite |
 | `js/daten/` | Laden und Berechnen der Daten je Bereich |
 | `js/format.js` | Euro, Zahlen und Datum im deutschen Format |
+| `js/eingabe.js` | Eingabefelder, liest deutsche Beträge wie 1.234,56 |
+| `js/liste.js` | Bearbeitbare Liste (anzeigen, anlegen, ändern, löschen) |
+| `js/diagramm.js` | Segmentierter Balken für Anteile an einem Ganzen |
+| `js/fehler.js` | Deutsche Fehlermeldungen |
 | `vendor/supabase.js` | Lokale Kopie von supabase-js 2.119.1 (MIT Lizenz) |

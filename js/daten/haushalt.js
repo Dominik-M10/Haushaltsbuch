@@ -52,3 +52,27 @@ export async function kurzinfoHaushalt() {
     negativ: rest < 0,
   };
 }
+
+export async function ladeSparziele() {
+  return abfrage(db.from('sparziele').select('*').order('erstellt_am'));
+}
+
+/** Legt eine Zeile an (ohne id) oder ändert sie (mit id) */
+export async function speichereZeile(tabelle, werte, id) {
+  const anfrage = id
+    ? db.from(tabelle).update(werte).eq('id', id)
+    : db.from(tabelle).insert(werte);
+  const { error } = await anfrage;
+  if (error) throw error;
+}
+
+export async function loescheZeile(tabelle, id) {
+  const { error } = await db.from(tabelle).delete().eq('id', id);
+  if (error) throw error;
+}
+
+/** Miete: genau eine Zeile pro Benutzer, daher anlegen oder überschreiben */
+export async function speichereMiete(userId, werte) {
+  const { error } = await db.from('miete').upsert({ user_id: userId, ...werte });
+  if (error) throw error;
+}

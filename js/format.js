@@ -33,3 +33,33 @@ export function datum(isoDatum) {
 export function monatsname(zeitpunkt = new Date()) {
   return monatFormat.format(zeitpunkt);
 }
+
+const prozentFormat = new Intl.NumberFormat('de-DE', { style: 'percent', maximumFractionDigits: 0 });
+const prozentGenauFormat = new Intl.NumberFormat('de-DE', {
+  style: 'percent',
+  minimumFractionDigits: 1,
+  maximumFractionDigits: 1,
+});
+
+/** 0.456 wird zu "46 %" */
+export function prozent(anteil) {
+  return prozentFormat.format(anteil);
+}
+
+/** 0.2 wird zu "20,0 %" */
+export function prozentGenau(anteil) {
+  return prozentGenauFormat.format(anteil);
+}
+
+const datumTeileFormat = new Intl.DateTimeFormat('de-DE', {
+  timeZone: ZEITZONE,
+  year: 'numeric',
+  month: '2-digit',
+  day: '2-digit',
+});
+
+/** Heutiges Datum in deutscher Zeit als "2026-11-18" (für Datumsfelder) */
+export function heuteIso() {
+  const teile = Object.fromEntries(datumTeileFormat.formatToParts(new Date()).map((t) => [t.type, t.value]));
+  return `${teile.year}-${teile.month}-${teile.day}`;
+}
