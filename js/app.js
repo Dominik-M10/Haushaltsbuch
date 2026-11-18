@@ -22,9 +22,11 @@ let sitzung = null;
 let aufraeumen = null;
 let durchlauf = 0;
 
+// "#/meilenstand/p/123" wird zu { name: 'meilenstand', pfad: ['p', '123'] }
 function routeAusAdresse() {
-  const name = location.hash.replace(/^#\/?/, '');
-  return Object.hasOwn(seiten, name) ? name : 'start';
+  const entschluesseln = (teil) => { try { return decodeURIComponent(teil); } catch { return ''; } };
+  const [name, ...pfad] = location.hash.replace(/^#\/?/, '').split('/').map(entschluesseln);
+  return Object.hasOwn(seiten, name) ? { name, pfad } : { name: 'start', pfad: [] };
 }
 
 function anzeigen() {
@@ -36,8 +38,10 @@ function anzeigen() {
   container.replaceChildren();
   window.scrollTo(0, 0);
 
+  const route = routeAusAdresse();
   const kontext = {
     sitzung,
+    pfad: route.pfad, // Teile der Adresse nach dem Seitennamen
     // false, sobald der Benutzer die Seite verlassen hat. Wichtig nach dem Laden von Daten.
     aktiv: () => dieserDurchlauf === durchlauf,
   };
@@ -48,7 +52,7 @@ function anzeigen() {
     return;
   }
 
-  const seite = seiten[routeAusAdresse()];
+  const seite = seiten[route.name];
   document.title = seite.titel;
   aufraeumen = seite.anzeigen(container, kontext) ?? null;
 }

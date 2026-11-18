@@ -1,15 +1,15 @@
 // Haushaltsbuch: Monatsübersicht, Verteilung, Einkommen, Fixkosten, Sparen, Miete und Sparziele.
 // Alle Beträge sind ein fester Monatsplan. Nach jeder Änderung werden die Daten neu geladen.
-import { h, seitenKopf } from '../ui.js';
+import { h, seitenKopf, fortschrittsbalken } from '../ui.js';
 import { euro, euroAusCent, prozent, prozentGenau } from '../format.js';
 import { feld, Eingabefehler } from '../eingabe.js';
 import { fehlertext } from '../fehler.js';
 import { bearbeitbareListe } from '../liste.js';
 import { segmentBalken } from '../diagramm.js';
 import {
-  cent, fixkostenMonatCent, ladeHaushalt, ladeSparziele, monatsuebersicht,
-  speichereZeile, loescheZeile, speichereMiete,
+  cent, fixkostenMonatCent, ladeHaushalt, ladeSparziele, monatsuebersicht, speichereMiete,
 } from '../daten/haushalt.js';
+import { speichereZeile, loescheZeile } from '../daten/tabellen.js';
 
 // Farben im Diagramm und in der Übersicht (Reihenfolge fest, siehe css/style.css)
 const SERIE = { fixkosten: 1, sparen: 2, miete: 3, uebrig: 4 };
@@ -151,18 +151,6 @@ function mieteKarte(miete, u, speichern) {
 
   zeichnen();
   return karte;
-}
-
-function fortschrittsbalken(anteil, name) {
-  const prozentWert = Math.round(Math.min(anteil, 1) * 100);
-  return h('span', {
-    class: anteil >= 1 ? 'fortschritt erreicht' : 'fortschritt',
-    role: 'progressbar',
-    'aria-label': `Fortschritt ${name}`,
-    'aria-valuemin': 0,
-    'aria-valuemax': 100,
-    'aria-valuenow': prozentWert,
-  }, h('span', { class: 'fortschritt-balken', style: `width: ${prozentWert}%` }));
 }
 
 export function haushaltsbuchSeite(container, kontext) {

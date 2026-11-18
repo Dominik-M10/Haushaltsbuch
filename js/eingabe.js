@@ -45,8 +45,9 @@ let feldZaehler = 0;
 
 /**
  * Erzeugt ein beschriftetes Eingabefeld.
- * def: { name, label, typ: 'text' | 'euro' | 'ganzzahl' | 'datum' | 'auswahl' | 'langtext',
- *        pflicht, groesserNull, optionen: [[wert, text], ...], standard, hinweis }
+ * def: { name, label, typ: 'text' | 'euro' | 'ganzzahl' | 'datum' | 'auswahl' | 'langtext' | 'verhaeltnis' | 'schalter',
+ *        pflicht, groesserNull, optionen: [[wert, text], ...], gruppen, standard, hinweis }
+ * 'verhaeltnis' liest [quelle, ziel], 'schalter' liest true oder false.
  * Rückgabe: { element, eingabe, lesen() }. lesen() wirft einen Eingabefehler bei ungültigen Werten.
  */
 export function feld(def, wert) {
@@ -54,11 +55,35 @@ export function feld(def, wert) {
   const startwert = wert ?? def.standard;
   let eingabe;
 
+  let zweite = null; // zweites Zahlenfeld beim Verhältnis
+  let steuerung = null;
+
   switch (def.typ) {
-    case 'auswahl':
-      eingabe = h('select', { class: 'eingabe', id, name: def.name },
-        def.optionen.map(([w, text]) => h('option', { value: w, selected: w === startwert }, text)),
-      );
+    case 'auswahl': {
+      const option = ([w, text]) => h('option', { value: w, selected: w === startwert }, text);
+      // optionen: [[wert, text], ...] oder gruppen: [{ name, optionen: [[wert, text], ...] }, ...]
+      const inhalt = def.gruppen
+        ? def.gruppen.filter((g) => g.optionen.length).map((g) => h('optgroup', { label: g.name }, g.optionen.map(option)))
+        : def.optionen.map(option);
+      eingabe = h('select', { class: 'eingabe', id, name: def.name }, inhalt);
+      steuerung = h('span', { class: 'auswahl-huelle' }, eingabe);
+      break;
+    }
+    case 'verhaeltnis': {
+      // zwei ganze Zahlen, Quelle : Ziel
+      const [q, z] = startwert ?? [null, null];
+      const zahlfeld = (wert, name, beschriftung) => h('input', {
+        class: 'eingabe', type: 'text', inputmode: 'numeric', autocomplete: 'off', name,
+        value: wert == null ? '' : String(wert), 'aria-label': beschriftung,
+      });
+      eingabe = zahlfeld(q, `${def.name}_quelle`, `${def.label}, Punkte der Quelle`);
+      eingabe.id = id;
+      zweite = zahlfeld(z, `${def.name}_ziel`, `${def.label}, Punkte im Ziel`);
+      steuerung = h('span', { class: 'verhaeltnis' }, eingabe, h('span', { 'aria-hidden': 'true' }, ':'), zweite);
+      break;
+    }
+    case 'schalter':
+      eingabe = h('input', { class: 'schalter-eingabe', id, name: def.name, type: 'checkbox', checked: Boolean(startwert) });
       break;
     case 'euro':
       eingabe = h('input', {
@@ -92,12 +117,16 @@ export function feld(def, wert) {
     hinweis = h('span', { class: 'feld-hinweis', id: `${id}-hinweis` }, def.hinweis);
     eingabe.setAttribute('aria-describedby', `${id}-hinweis`);
   }
-  const steuerung = def.typ === 'auswahl' ? h('span', { class: 'auswahl-huelle' }, eingabe) : eingabe;
-  const element = h('div', { class: 'feld' },
-    h('label', { class: 'feld-name', for: id }, def.label),
-    steuerung,
-    hinweis,
-  );
+  const element = def.typ === 'schalter'
+    ? h('div', { class: 'feld feld-schalter' },
+        h('label', { class: 'schalter', for: id }, eingabe, h('span', {}, def.label)),
+        hinweis,
+      )
+    : h('div', { class: 'feld' },
+        h('label', { class: 'feld-name', for: id }, def.label),
+        steuerung ?? eingabe,
+        hinweis,
+      );
 
   function lesen() {
     const roh = eingabe.value;
@@ -127,6 +156,16 @@ export function feld(def, wert) {
         return roh;
       case 'auswahl':
         return roh;
+      case 'schalter':
+        return eingabe.checked;
+      case 'verhaeltnis': {
+        const q = leseGanzzahl(roh);
+        const z = leseGanzzahl(zweite.value);
+        if (!(q > 0) || !(z > 0) || q > 1e6 || z > 1e6) {
+          throw new Eingabefehler(`${def.label}: bitte zwei ganze Zahlen größer als 0 eingeben, zum Beispiel 5 : 4.`, eingabe);
+        }
+        return [q, z];
+      }
       default: {
         const text = roh.trim();
         if (def.pflicht && !text) throw new Eingabefehler(`Bitte ${def.label} eingeben.`, eingabe);

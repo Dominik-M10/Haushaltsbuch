@@ -42,13 +42,32 @@ export function symbol(name) {
   return huelle;
 }
 
-/** Kopf für Unterseiten: Button zurück zur Startseite, darunter der Titel und optionale Aktionen */
-export function seitenKopf(titel, ...aktionen) {
+/**
+ * Kopf für Unterseiten: Button zurück zur Startseite, darunter der Titel.
+ * weitereLinks: optionale zusätzliche Rücksprünge, zum Beispiel [{ href: '#/meilenstand', text: 'Meilenstand' }]
+ */
+export function seitenKopf(titel, { weitereLinks = [], untertitel = null } = {}) {
   return h('header', { class: 'kopf-unterseite' },
-    h('a', { class: 'knopf zurueck', href: '#/' }, symbol('zurueck'), 'Startseite'),
-    h('div', { class: 'kopf' },
+    h('nav', { class: 'kopf-links', 'aria-label': 'Zurück' },
+      h('a', { class: 'knopf zurueck', href: '#/' }, symbol('zurueck'), 'Startseite'),
+      weitereLinks.map((l) => h('a', { class: 'knopf zurueck', href: l.href }, symbol('zurueck'), l.text)),
+    ),
+    h('div', { class: 'kopf-titelzeile' },
       h('h1', {}, titel),
-      aktionen.length ? h('div', { class: 'kopf-aktionen' }, ...aktionen) : null,
+      untertitel ? h('p', { class: 'leise' }, untertitel) : null,
     ),
   );
+}
+
+/** Fortschrittsbalken für Ziele. anteil 0.3 entspricht 30 %, über 100 % bleibt der Balken voll. */
+export function fortschrittsbalken(anteil, name) {
+  const prozentWert = Math.round(Math.min(Math.max(anteil, 0), 1) * 100);
+  return h('span', {
+    class: anteil >= 1 ? 'fortschritt erreicht' : 'fortschritt',
+    role: 'progressbar',
+    'aria-label': `Fortschritt ${name}`,
+    'aria-valuemin': 0,
+    'aria-valuemax': 100,
+    'aria-valuenow': prozentWert,
+  }, h('span', { class: 'fortschritt-balken', style: `width: ${prozentWert}%` }));
 }

@@ -12,7 +12,7 @@ Frontend mit HTML, CSS und JavaScript ohne Build Schritt, Login und Datenbank ü
 | Login | erledigt |
 | Startseite | erledigt |
 | Haushaltsbuch | erledigt |
-| Meilenstand | offen |
+| Meilenstand | erledigt |
 | Export | offen |
 
 ## Datenbank
@@ -37,6 +37,16 @@ Bei Miles & More über Amex ist `amex_ueber_payback` gesetzt. Die App rechnet da
 Amex zu Payback mit dem Verhältnis aus der Zeile „Payback“, danach Payback zu Miles & More.
 
 Beim Anlegen eines neuen Benutzerkontos werden automatisch 29 Programme mit den Verhältnissen vom 18.11.2026 eingetragen.
+
+## Regeln im Meilenstand
+
+1. Verhältnisse sind immer Quelle zu Ziel: 5:4 heißt 5 Punkte ergeben 4 Meilen.
+2. Der Umrechner rundet auf ganze Meilen oder Punkte ab, bei zwei Schritten nach jedem Schritt.
+3. Steht bei einem Programm „Amex über Payback“, rechnet der Umrechner zuerst mit dem Amex Verhältnis
+   des Programms „Payback“ und danach mit dem Payback Verhältnis des Programms.
+   Das Gesamtverhältnis in der Tabelle ergibt sich daraus (bei Miles & More 3:1).
+4. Aktueller Stand ist der Eintrag mit dem jüngsten Datum. Die Kachel auf der Startseite zeigt
+   den zuletzt angelegten oder geänderten Eintrag.
 
 ## Einrichtung
 
@@ -77,5 +87,8 @@ Danach im Browser `http://localhost:8080` öffnen.
 | `js/eingabe.js` | Eingabefelder, liest deutsche Beträge wie 1.234,56 |
 | `js/liste.js` | Bearbeitbare Liste (anzeigen, anlegen, ändern, löschen) |
 | `js/diagramm.js` | Segmentierter Balken für Anteile an einem Ganzen |
+| `js/liniendiagramm.js` | Liniendiagramm für den Verlauf eines Programms |
+| `js/daten/tabellen.js` | Gemeinsames Laden, Speichern und Löschen |
+| `js/daten/programme.js` | Regeln für Transferwege und Umrechner (ohne Datenbank, einzeln testbar) |
 | `js/fehler.js` | Deutsche Fehlermeldungen |
 | `vendor/supabase.js` | Lokale Kopie von supabase-js 2.119.1 (MIT Lizenz) |

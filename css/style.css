@@ -303,7 +303,13 @@ input, select, textarea, button {
   margin-bottom: 20px;
 }
 
-.kopf-unterseite .kopf { margin-bottom: 0; }
+.kopf-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.kopf-titelzeile p { margin: 2px 0 0; }
 
 .zurueck {
   justify-self: start;
@@ -449,6 +455,12 @@ input, select, textarea, button {
 
 .bereich > p { margin: 0; }
 
+/* Knöpfe in Karten nur so breit wie ihr Text */
+.bereich > .knopf { justify-self: start; }
+
+/* In breiten Karten Bezeichnung und Wert nicht über die ganze Breite auseinanderziehen */
+.breit .werte { max-width: 36rem; }
+
 .bereich-kopf {
   display: flex;
   align-items: baseline;
@@ -529,7 +541,23 @@ input, select, textarea, button {
   white-space: nowrap;
 }
 
-.zeile > .fortschritt { grid-column: 1 / -1; }
+a.zeile { text-decoration: none; }
+
+.zeile > .fortschritt,
+.zeile > .zeile-unten,
+.zeile > .zeile-notiz { grid-column: 1 / -1; }
+
+.zeile-unten {
+  display: grid;
+  gap: 6px;
+}
+
+.zeile-notiz {
+  font-size: 0.9375rem;
+  color: var(--text-leise);
+  white-space: pre-line;
+  overflow-wrap: anywhere;
+}
 
 .liste-formular { padding: 12px 0; }
 
@@ -759,4 +787,308 @@ textarea.eingabe { resize: vertical; }
 
 @media (forced-colors: active) {
   .segment, .legende-farbe, .fortschritt-balken { forced-color-adjust: none; }
+}
+
+/* =====================================================================
+   Meilenstand
+   ===================================================================== */
+
+/* ---------- Reiter ---------- */
+
+.reiter {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  margin-bottom: 16px;
+  border-radius: 12px;
+  background: var(--flaeche-2);
+}
+
+.reiter-eintrag {
+  flex: 1;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px 10px;
+  border-radius: 9px;
+  color: var(--text-leise);
+  font-weight: 600;
+  text-align: center;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.reiter-eintrag[aria-current="page"] {
+  background: var(--flaeche);
+  color: var(--text);
+  box-shadow: var(--schatten);
+}
+
+@media (min-width: 800px) {
+  .reiter { max-width: 32rem; }
+}
+
+/* ---------- Werte ---------- */
+
+.gross-wert {
+  margin: 0;
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.erfolgstext {
+  color: var(--erfolg);
+  font-weight: 600;
+}
+
+.zelle-hinweis {
+  display: block;
+  font-size: 0.8125rem;
+  font-weight: 400;
+  color: var(--text-leise);
+}
+
+.werte dd { text-align: right; }
+
+/* ---------- Programmtabelle ---------- */
+
+.tabelle-huelle {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.programmtabelle {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9375rem;
+}
+
+.programmtabelle th,
+.programmtabelle td {
+  padding: 10px 8px;
+  border-bottom: 1px solid var(--rand);
+  text-align: left;
+  vertical-align: top;
+}
+
+.programmtabelle th:first-child { padding-left: 0; }
+.programmtabelle tr > :last-child { padding-right: 0; }
+
+.programmtabelle thead th {
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-leise);
+  white-space: nowrap;
+}
+
+.programmtabelle tbody th { font-weight: 600; }
+
+.programmtabelle tbody th a {
+  color: inherit;
+  text-decoration: underline;
+  text-decoration-color: var(--rand);
+  text-underline-offset: 3px;
+}
+
+.programmtabelle tbody tr:last-child > * { border-bottom: 0; }
+
+.programmtabelle td { font-variant-numeric: tabular-nums; }
+.programmtabelle td.nein { color: var(--text-leise); }
+
+@media (max-width: 599px) {
+  .programmtabelle { font-size: 0.875rem; }
+  .programmtabelle th,
+  .programmtabelle td { padding: 10px 5px; }
+  .programmtabelle tbody th { width: 34%; }
+}
+
+/* ---------- Programmformular ---------- */
+
+.quelle-gruppe {
+  display: grid;
+  gap: 12px;
+  margin: 0;
+  padding: 12px 14px 14px;
+  border: 1px solid var(--rand);
+  border-radius: var(--radius-klein);
+  background: var(--flaeche);
+  min-width: 0;
+}
+
+.quelle-gruppe legend {
+  padding: 0 6px;
+  font-weight: 700;
+}
+
+.verhaeltnis {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 700;
+}
+
+.verhaeltnis .eingabe {
+  width: 6.5rem;
+  text-align: center;
+}
+
+.feld-schalter {
+  display: grid;
+  gap: 4px;
+}
+
+.schalter {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.schalter-eingabe {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  margin: 0;
+  accent-color: var(--akzent);
+}
+
+/* ---------- Umrechner ---------- */
+
+.umrechner {
+  display: grid;
+  gap: 20px;
+  align-items: start;
+}
+
+@media (min-width: 800px) {
+  .umrechner { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 32px; }
+}
+
+.wahl-gruppe {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+
+.wahl-gruppe legend { padding: 0; margin-bottom: 6px; }
+
+.wahl {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  padding: 10px 14px;
+  border: 1px solid var(--rand);
+  border-radius: var(--radius-klein);
+  background: var(--flaeche);
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.wahl input {
+  flex: none;
+  width: 20px;
+  height: 20px;
+  margin: 0;
+  accent-color: var(--akzent);
+}
+
+.wahl:has(input:checked) {
+  border-color: var(--akzent);
+  background: var(--akzent-weich);
+}
+
+.umrechner-ergebnis {
+  display: grid;
+  gap: 6px;
+  padding: 16px;
+  border-radius: var(--radius-klein);
+  background: var(--flaeche-2);
+}
+
+.umrechner-ergebnis p { margin: 0; }
+
+.ergebnis-beschriftung {
+  color: var(--text-leise);
+  font-size: 0.9375rem;
+}
+
+.schritte {
+  display: grid;
+  gap: 10px;
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none; /* die Schritte sind im Text nummeriert */
+}
+
+.schritte span { display: block; }
+.schritt-titel { font-weight: 600; }
+
+.hinweis-box {
+  padding: 10px 12px;
+  border-radius: var(--radius-klein);
+  background: var(--akzent-weich);
+}
+
+/* ---------- Liniendiagramm ---------- */
+
+.liniendiagramm {
+  position: relative;
+  height: 220px;
+}
+
+.liniendiagramm svg {
+  display: block;
+  touch-action: pan-y; /* waagerecht wischen bewegt die Auswahl, senkrecht scrollt die Seite */
+  -webkit-tap-highlight-color: transparent;
+}
+
+.liniendiagramm svg:focus { outline: none; }
+.liniendiagramm svg:focus-visible { outline: 2px solid var(--akzent); outline-offset: 2px; border-radius: 4px; }
+
+.liniendiagramm .diagramm-tooltip {
+  bottom: auto;
+  top: 0;
+}
+
+.ld-raster { stroke: var(--rand); stroke-width: 1; }
+
+.ld-achse {
+  fill: var(--text-leise);
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.ld-linie {
+  fill: none;
+  stroke: var(--serie-1);
+  stroke-width: 2;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+}
+
+.ld-punkt,
+.ld-auswahl {
+  fill: var(--serie-1);
+  stroke: var(--flaeche);
+  stroke-width: 2;
+}
+
+.ld-endwert {
+  fill: var(--text);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.ld-kreuz {
+  stroke: var(--text-leise);
+  stroke-width: 1;
 }

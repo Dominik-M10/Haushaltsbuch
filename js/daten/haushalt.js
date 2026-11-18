@@ -2,6 +2,7 @@
 // Gerechnet wird in ganzen Cent, damit keine Rundungsfehler durch Kommazahlen entstehen.
 import { db } from '../supabase.js';
 import { euroAusCent, monatsname } from '../format.js';
+import { abfrage } from './tabellen.js';
 
 export function cent(wert) {
   return Math.round(Number(wert) * 100);
@@ -11,12 +12,6 @@ export function cent(wert) {
 export function fixkostenMonatCent(zeile) {
   const betrag = cent(zeile.betrag);
   return zeile.intervall === 'jaehrlich' ? Math.round(betrag / 12) : betrag;
-}
-
-async function abfrage(anfrage) {
-  const { data, error } = await anfrage;
-  if (error) throw error;
-  return data;
 }
 
 export async function ladeHaushalt() {
@@ -55,20 +50,6 @@ export async function kurzinfoHaushalt() {
 
 export async function ladeSparziele() {
   return abfrage(db.from('sparziele').select('*').order('erstellt_am'));
-}
-
-/** Legt eine Zeile an (ohne id) oder ändert sie (mit id) */
-export async function speichereZeile(tabelle, werte, id) {
-  const anfrage = id
-    ? db.from(tabelle).update(werte).eq('id', id)
-    : db.from(tabelle).insert(werte);
-  const { error } = await anfrage;
-  if (error) throw error;
-}
-
-export async function loescheZeile(tabelle, id) {
-  const { error } = await db.from(tabelle).delete().eq('id', id);
-  if (error) throw error;
 }
 
 /** Miete: genau eine Zeile pro Benutzer, daher anlegen oder überschreiben */

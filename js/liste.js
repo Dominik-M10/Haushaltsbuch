@@ -14,6 +14,7 @@ import { fehlertext } from './fehler.js';
  *   loeschen(eintrag): async
  *   loeschFrage(eintrag): Text für die Sicherheitsabfrage
  *   klasse: zusätzliche CSS Klasse für die Karte
+ *   oben: optionales Element zwischen Titel und Liste, zum Beispiel ein Diagramm
  */
 export function bearbeitbareListe(o) {
   let offen = null; // id des Eintrags im Bearbeitungsmodus oder 'neu'
@@ -30,6 +31,7 @@ export function bearbeitbareListe(o) {
       h('h2', {}, o.titel),
       o.kopfWert ? h('span', { class: 'bereich-summe' }, o.kopfWert) : null,
     ),
+    o.oben ?? null,
     liste,
     neuKnopf,
   );
