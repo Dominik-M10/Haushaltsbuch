@@ -38,6 +38,27 @@ Amex zu Payback mit dem Verhältnis aus der Zeile „Payback“, danach Payback 
 
 Beim Anlegen eines neuen Benutzerkontos werden automatisch 29 Programme mit den Verhältnissen vom 18.11.2026 eingetragen.
 
+## Design
+
+Grundlage ist die Token Datei „Look: YNAB“: Hintergrund Creme `#fef9ed`, Karten Weiß, Schrift Navy `#1c1f58`,
+Akzent `#545bfe`, primäre Knöpfe Grün `#aee865` mit Navy Schrift, Radius 8 px (Knöpfe 6 px), Schrift Figtree.
+Alle Werte stehen als Variablen oben in `css/style.css`.
+
+Ergänzt, weil die Vorlage sie nicht enthält (alle auf Kontrast nach WCAG geprüft):
+
+| Wert | Hell | Dunkel |
+|---|---|---|
+| Hintergrund | aus der Vorlage | `#13153d` |
+| Karten | aus der Vorlage | `#1c1f58` (Navy der Vorlage) |
+| Schrift | aus der Vorlage | `#fef9ed` (Creme der Vorlage) |
+| Gedämpfte Schrift | `#5d608c` | `#b7b6d6` |
+| Akzent | aus der Vorlage | `#8f95ff` |
+| Fehler | `#c42b3a` | `#ff8f96` |
+| Erfolg | `#147a50`, Balken Mint `#41d298` | `#41d298` |
+
+Die Schrift Figtree liegt als Datei in `fonts/` (SIL Open Font License), es wird nichts von Google geladen.
+Diagrammfarben sind auf Farbsehschwäche geprüft, die erste Farbe ist der Akzent der Vorlage.
+
 ## Regeln im Meilenstand
 
 1. Verhältnisse sind immer Quelle zu Ziel: 5:4 heißt 5 Punkte ergeben 4 Meilen.
@@ -100,3 +121,4 @@ Danach im Browser `http://localhost:8080` öffnen.
 | `js/fehler.js` | Deutsche Fehlermeldungen |
 | `js/export.js` | CSV Export (Semikolon, Komma bei Beträgen, UTF-8) |
 | `vendor/supabase.js` | Lokale Kopie von supabase-js 2.119.1 (MIT Lizenz) |
+| `fonts/` | Schrift Figtree (SIL Open Font License) |

@@ -35,6 +35,7 @@ export async function ladeLetztenStand() {
     .from('meilenstaende')
     .select('datum, stand, geaendert_am, programme(name, typ)')
     .order('geaendert_am', { ascending: false })
+    .order('datum', { ascending: false }) // bei gleicher Änderungszeit der jüngere Stand
     .limit(1)
     .maybeSingle();
   if (error) throw error;

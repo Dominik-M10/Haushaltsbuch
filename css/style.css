@@ -1,57 +1,103 @@
 /* =====================================================================
    Haushaltsbuch: Gestaltung
+   Design Tokens nach css Vorlage "Look: YNAB" (Farben, Schrift Figtree, Radien, Knöpfe, Eingabefelder).
    Mobil zuerst, ab 768 px breiter. Dunkelmodus folgt dem Gerät.
+   Die dunklen Farben, Fehler und Erfolgsfarben sowie die gedämpfte Schrift sind aus der Vorlage
+   abgeleitet (dort nicht enthalten) und auf Kontrast nach WCAG geprüft.
    ===================================================================== */
+
+/* Schrift Figtree als lokale Datei (SIL Open Font License, siehe fonts/Figtree-OFL.txt) */
+@font-face {
+  font-family: "Figtree";
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url("../fonts/figtree-latin-wght-normal.woff2") format("woff2");
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308,
+    U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: "Figtree";
+  font-style: normal;
+  font-weight: 300 900;
+  font-display: swap;
+  src: url("../fonts/figtree-latin-ext-wght-normal.woff2") format("woff2");
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329,
+    U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
 
 :root {
   color-scheme: light dark;
 
-  --bg: #f3f5f7;
+  /* aus der Vorlage */
+  --bg: #fef9ed;
   --flaeche: #ffffff;
-  --flaeche-2: #eef1f4;
-  --text: #15191e;
-  --text-leise: #5b6573;
-  --rand: #d9dee5;
-  --akzent: #0f766e;
-  --akzent-text: #ffffff;
-  --akzent-weich: #ccfbf1;
-  --fehler: #b42318;
-  --fehler-weich: #fef3f2;
-  --erfolg: #067647;
-  --erfolg-weich: #ecfdf3;
-  --schatten: 0 1px 2px rgb(16 24 40 / 0.06), 0 1px 3px rgb(16 24 40 / 0.1);
+  --text: #1c1f58;
+  --akzent: #545bfe;
+  --gruen: #aee865;
+  --mint: #41d298;
+  --knopf-bg: #aee865;
+  --knopf-text: #1c1f58;
+  --knopf2-text: #1c1f58;
+  --knopf2-rand: #1c1f58;
+  --rand-eingabe: #1c1f58;
 
-  /* Diagrammfarben: feste Reihenfolge, auf Farbsehschwäche geprüft */
-  --serie-1: #2a78d6;
+  /* ergänzt, passend zur Vorlage */
+  --flaeche-2: #f6f0e1;
+  --text-leise: #5d608c;
+  --rand: #e3e3eb;
+  --rand-karte: rgb(28 31 88 / 0.1);
+  --akzent-text: #ffffff;
+  --akzent-weich: #e5e6ff;
+  --fehler: #c42b3a;
+  --fehler-weich: #fdecee;
+  --erfolg: #147a50;
+  --erfolg-weich: #e3f8ee;
+  --erfolg-balken: var(--mint);
+  --schatten: none;
+
+  /* Diagrammfarben: feste Reihenfolge, auf Farbsehschwäche geprüft, Farbe 1 ist der Akzent */
+  --serie-1: #545bfe;
   --serie-2: #eb6834;
   --serie-3: #1baf7a;
   --serie-4: #eda100;
   --text-auf-serie-4: #0b0b0b;
 
-  --radius: 14px;
-  --radius-klein: 10px;
+  /* Radien und Abstände aus der Vorlage (Grundeinheit 4 px) */
+  --radius: 8px;
+  --radius-klein: 8px;
+  --radius-knopf: 6px;
   --abstand: 16px;
-  --schrift: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --schrift: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --schrift-titel: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --bg: #0f1216;
-    --flaeche: #181c22;
-    --flaeche-2: #20252d;
-    --text: #e8ebef;
-    --text-leise: #9aa4b2;
-    --rand: #2c333d;
-    --akzent: #2dd4bf;
-    --akzent-text: #04201c;
-    --akzent-weich: #123a36;
-    --fehler: #f97066;
-    --fehler-weich: #3a1a17;
-    --erfolg: #47cd89;
-    --erfolg-weich: #10301f;
+    /* abgeleitet: Navy als Fläche, Creme als Schrift */
+    --bg: #13153d;
+    --flaeche: #1c1f58;
+    --flaeche-2: #272b6e;
+    --text: #fef9ed;
+    --text-leise: #b7b6d6;
+    --rand: #333878;
+    --rand-karte: rgb(254 249 237 / 0.08);
+    --rand-eingabe: #9a9ccc;
+    --akzent: #8f95ff;
+    --akzent-text: #13153d;
+    --akzent-weich: #30358a;
+    --knopf-bg: #aee865;
+    --knopf-text: #1c1f58;
+    --knopf2-text: #fef9ed;
+    --knopf2-rand: #fef9ed;
+    --fehler: #ff8f96;
+    --fehler-weich: #40193a;
+    --erfolg: #41d298;
+    --erfolg-weich: #14403a;
     --schatten: none;
 
-    --serie-1: #3987e5;
+    --serie-1: #7a80ff;
     --serie-2: #d95926;
     --serie-3: #199e70;
     --serie-4: #c98500;
@@ -88,8 +134,13 @@ body {
 
 [hidden] { display: none !important; }
 
-h1, h2, h3 { line-height: 1.25; margin: 0; }
-h1 { font-size: 1.375rem; }
+h1, h2, h3 {
+  margin: 0;
+  font-family: var(--schrift-titel);
+  font-weight: 700;
+  line-height: 1.25;
+}
+h1 { font-size: 1.5rem; }
 h2 { font-size: 1.125rem; }
 
 a { color: var(--akzent); }
@@ -149,7 +200,7 @@ input, select, textarea, button {
 
 .karte {
   background: var(--flaeche);
-  border: 1px solid var(--rand);
+  border: 1px solid var(--rand-karte);
   border-radius: var(--radius);
   box-shadow: var(--schatten);
   padding: 20px;
@@ -157,17 +208,18 @@ input, select, textarea, button {
 
 /* ---------- Knöpfe ---------- */
 
+/* Standard ist der zweite Knopfstil der Vorlage: transparent mit Rand. Primär ist der grüne Knopf. */
 .knopf {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
   min-height: 44px;
-  padding: 10px 18px;
-  border: 1px solid var(--rand);
-  border-radius: var(--radius-klein);
-  background: var(--flaeche);
-  color: var(--text);
+  padding: 10px 20px;
+  border: 1px solid var(--knopf2-rand);
+  border-radius: var(--radius-knopf);
+  background: transparent;
+  color: var(--knopf2-text);
   font-weight: 600;
   line-height: 1.2;
   text-decoration: none;
@@ -176,15 +228,19 @@ input, select, textarea, button {
   touch-action: manipulation;
 }
 
-.knopf:hover { background: var(--flaeche-2); }
-
-.knopf.primaer {
-  background: var(--akzent);
-  border-color: var(--akzent);
-  color: var(--akzent-text);
+@media (hover: hover) {
+  .knopf:hover { background: var(--flaeche-2); }
 }
 
-.knopf.primaer:hover { filter: brightness(1.08); }
+.knopf.primaer {
+  background: var(--knopf-bg);
+  border-color: var(--knopf-bg);
+  color: var(--knopf-text);
+}
+
+@media (hover: hover) {
+  .knopf.primaer:hover { filter: brightness(0.95); }
+}
 
 .knopf:disabled {
   opacity: 0.6;
@@ -214,10 +270,11 @@ input, select, textarea, button {
 .eingabe {
   width: 100%;
   min-height: 48px;
-  padding: 10px 14px;
-  border: 1px solid var(--rand);
-  border-radius: var(--radius-klein);
+  padding: 10px 12px;
+  border: 1px solid var(--rand-eingabe);
+  border-radius: var(--radius);
   background: var(--flaeche);
+  color: var(--text);
   appearance: none;
   -webkit-appearance: none;
 }
@@ -225,7 +282,7 @@ input, select, textarea, button {
 .eingabe:focus {
   outline: 2px solid var(--akzent);
   outline-offset: 0;
-  border-color: transparent;
+  border-color: var(--akzent);
 }
 
 .fehlermeldung {
@@ -365,7 +422,9 @@ input, select, textarea, button {
   transition: border-color 0.15s, transform 0.15s;
 }
 
-.kachel:hover { border-color: var(--akzent); }
+@media (hover: hover) {
+  .kachel:hover { border-color: var(--akzent); }
+}
 .kachel:active { transform: scale(0.99); }
 
 .kachel-kopf {
@@ -379,7 +438,7 @@ input, select, textarea, button {
   place-items: center;
   width: 44px;
   height: 44px;
-  border-radius: 12px;
+  border-radius: var(--radius);
   background: var(--akzent-weich);
   color: var(--akzent);
 }
@@ -518,7 +577,9 @@ input, select, textarea, button {
   -webkit-tap-highlight-color: transparent;
 }
 
-.zeile:hover { background: var(--flaeche-2); }
+@media (hover: hover) {
+  .zeile:hover { background: var(--flaeche-2); }
+}
 
 .zeile-text {
   display: grid;
@@ -719,8 +780,11 @@ textarea.eingabe { resize: vertical; }
 
 .segment-text { padding: 0 8px; }
 
-.segment:hover,
 .segment.aktiv { filter: brightness(1.12); }
+
+@media (hover: hover) {
+  .segment:hover { filter: brightness(1.12); }
+}
 
 .segment:focus-visible {
   outline: 2px solid var(--text);
@@ -783,7 +847,7 @@ textarea.eingabe { resize: vertical; }
   background: var(--akzent);
 }
 
-.fortschritt.erreicht .fortschritt-balken { background: var(--erfolg); }
+.fortschritt.erreicht .fortschritt-balken { background: var(--erfolg-balken); }
 
 @media (forced-colors: active) {
   .segment, .legende-farbe, .fortschritt-balken { forced-color-adjust: none; }
@@ -800,7 +864,7 @@ textarea.eingabe { resize: vertical; }
   gap: 4px;
   padding: 4px;
   margin-bottom: 16px;
-  border-radius: 12px;
+  border-radius: var(--radius);
   background: var(--flaeche-2);
 }
 
@@ -811,7 +875,7 @@ textarea.eingabe { resize: vertical; }
   align-items: center;
   justify-content: center;
   padding: 8px 10px;
-  border-radius: 9px;
+  border-radius: var(--radius-knopf);
   color: var(--text-leise);
   font-weight: 600;
   text-align: center;
@@ -822,7 +886,7 @@ textarea.eingabe { resize: vertical; }
 .reiter-eintrag[aria-current="page"] {
   background: var(--flaeche);
   color: var(--text);
-  box-shadow: var(--schatten);
+  box-shadow: 0 0 0 1px var(--rand);
 }
 
 @media (min-width: 800px) {
