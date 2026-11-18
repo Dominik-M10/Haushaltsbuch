@@ -10,7 +10,7 @@ Frontend mit HTML, CSS und JavaScript ohne Build Schritt, Login und Datenbank ü
 | Datenmodell | erledigt |
 | SQL (Tabellen, Row Level Security, Vorbelegung) | erledigt |
 | Login | erledigt |
-| Startseite | offen |
+| Startseite | erledigt |
 | Haushaltsbuch | offen |
 | Meilenstand | offen |
 | Export | offen |
@@ -55,6 +55,12 @@ python3 -m http.server 8080
 
 Danach im Browser `http://localhost:8080` öffnen.
 
+## Neue Kachel ergänzen
+
+1. Seite in `js/seiten/` anlegen.
+2. Eine Funktion für die Kurzinfo schreiben, zum Beispiel in `js/daten/`.
+3. Einen Eintrag in `js/bereiche.js` hinzufügen. Kachel auf der Startseite und Seitenwechsel entstehen automatisch.
+
 ## Aufbau
 
 | Pfad | Inhalt |
@@ -64,5 +70,8 @@ Danach im Browser `http://localhost:8080` öffnen.
 | `css/style.css` | Gestaltung, mobil zuerst, Dunkelmodus nach Geräteeinstellung |
 | `js/config.js` | Adresse und öffentlicher Schlüssel des Supabase Projekts |
 | `js/app.js` | Anmeldestatus und Seitenwechsel über die Adresse nach `#` |
+| `js/bereiche.js` | Liste der Bereiche, daraus entstehen Kacheln und Seiten |
 | `js/seiten/` | Eine Datei pro Seite |
+| `js/daten/` | Laden und Berechnen der Daten je Bereich |
+| `js/format.js` | Euro, Zahlen und Datum im deutschen Format |
 | `vendor/supabase.js` | Lokale Kopie von supabase-js 2.119.1 (MIT Lizenz) |

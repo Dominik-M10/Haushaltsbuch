@@ -21,3 +21,34 @@ export function h(tag, eigenschaften = {}, ...kinder) {
   }
   return el;
 }
+
+// Feste Symbole der App (eigene Zeichnungen, keine Benutzereingaben)
+const SYMBOLE = {
+  zurueck: '<path d="M15 18l-6-6 6-6"/>',
+  weiter: '<path d="M9 18l6-6-6-6"/>',
+  geldboerse:
+    '<rect x="3" y="6" width="18" height="14" rx="3"/><path d="M3 10h18"/><circle cx="16.5" cy="15" r="1.3"/>',
+  flugzeug:
+    '<path d="M12 2.5c.9 0 1.6.7 1.6 1.6V9.5l7.4 4.3v2.1l-7.4-2.2v4.5l2.2 1.6v1.8L12 20.6l-3.8 1V19.8l2.2-1.6v-4.5L3 15.9v-2.1l7.4-4.3V4.1c0-.9.7-1.6 1.6-1.6z"/>',
+};
+
+export function symbol(name) {
+  const huelle = document.createElement('span');
+  huelle.className = 'symbol';
+  huelle.setAttribute('aria-hidden', 'true');
+  huelle.innerHTML =
+    '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ' +
+    `stroke-linecap="round" stroke-linejoin="round">${SYMBOLE[name] ?? ''}</svg>`;
+  return huelle;
+}
+
+/** Kopf für Unterseiten: Button zurück zur Startseite, darunter der Titel und optionale Aktionen */
+export function seitenKopf(titel, ...aktionen) {
+  return h('header', { class: 'kopf-unterseite' },
+    h('a', { class: 'knopf zurueck', href: '#/' }, symbol('zurueck'), 'Startseite'),
+    h('div', { class: 'kopf' },
+      h('h1', {}, titel),
+      aktionen.length ? h('div', { class: 'kopf-aktionen' }, ...aktionen) : null,
+    ),
+  );
+}

@@ -252,3 +252,163 @@ input, select, textarea, button {
   height: 64px;
   border-radius: 16px;
 }
+
+/* ---------- Hilfsklassen ---------- */
+
+/* nur für Screenreader sichtbar */
+.unsichtbar {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.symbol {
+  display: inline-flex;
+  width: 24px;
+  height: 24px;
+  flex: none;
+}
+
+.symbol svg {
+  width: 100%;
+  height: 100%;
+}
+
+.fehlertext { color: var(--fehler); }
+
+/* ---------- Unterseiten ---------- */
+
+.kopf-unterseite {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.kopf-unterseite .kopf { margin-bottom: 0; }
+
+.zurueck {
+  justify-self: start;
+  padding-left: 10px;
+}
+
+.kopf-aktionen {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ---------- Startseite: Uhr ---------- */
+
+.uhr {
+  text-align: center;
+  padding: 28px 16px 24px;
+  margin-bottom: 20px;
+}
+
+.uhr-zeit {
+  display: block;
+  font-size: clamp(2.75rem, 15vw, 5rem);
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+  line-height: 1.1;
+}
+
+.uhr-datum {
+  margin: 8px 0 0;
+  font-size: 1.125rem;
+  color: var(--text-leise);
+}
+
+/* ---------- Startseite: Kacheln ---------- */
+
+.kacheln {
+  display: grid;
+  gap: 16px;
+  /* so viele Spalten wie mit mindestens 300 px Platz haben, auf dem Handy eine */
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+}
+
+.kachel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  min-height: 168px;
+  color: inherit;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: border-color 0.15s, transform 0.15s;
+}
+
+.kachel:hover { border-color: var(--akzent); }
+.kachel:active { transform: scale(0.99); }
+
+.kachel-kopf {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.kachel-symbol {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: var(--akzent-weich);
+  color: var(--akzent);
+}
+
+.kachel-titel {
+  flex: 1;
+  font-size: 1.125rem;
+}
+
+.kachel-pfeil { color: var(--text-leise); }
+
+.kachel-info { margin-top: auto; }
+
+.kachel-info p { margin: 0; }
+
+.kachel-beschriftung {
+  font-size: 0.9375rem;
+  color: var(--text-leise);
+}
+
+.kachel-wert {
+  font-size: 1.75rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.25;
+}
+
+.kachel-wert.negativ { color: var(--fehler); }
+
+.kachel-zusatz { color: var(--text-leise); }
+
+/* ---------- Fußzeile ---------- */
+
+.fuss {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid var(--rand);
+  color: var(--text-leise);
+  font-size: 0.9375rem;
+  overflow-wrap: anywhere;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .kachel { transition: none; }
+  .kachel:active { transform: none; }
+}

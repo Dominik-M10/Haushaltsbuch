@@ -7,11 +7,15 @@
 import { db } from './supabase.js';
 import { loginSeite } from './seiten/login.js';
 import { startSeite } from './seiten/start.js';
+import { bereiche } from './bereiche.js';
 
-// Unterseiten, die nach dem Login erreichbar sind. Neue Seiten hier eintragen.
+// Seiten, die nach dem Login erreichbar sind: die Startseite und alle Bereiche aus bereiche.js
 const seiten = {
   start: { titel: 'Haushaltsbuch', anzeigen: startSeite },
 };
+for (const bereich of bereiche) {
+  seiten[bereich.id] = { titel: `${bereich.titel} · Haushaltsbuch`, anzeigen: bereich.seite };
+}
 
 const container = document.getElementById('app');
 let sitzung = null;
@@ -20,7 +24,7 @@ let durchlauf = 0;
 
 function routeAusAdresse() {
   const name = location.hash.replace(/^#\/?/, '');
-  return seiten[name] ? name : 'start';
+  return Object.hasOwn(seiten, name) ? name : 'start';
 }
 
 function anzeigen() {
