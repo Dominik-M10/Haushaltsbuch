@@ -968,6 +968,37 @@ textarea.eingabe { resize: vertical; }
   .programmtabelle tbody th { width: 34%; }
 }
 
+/* Umrechner: alle Ziele auf einen Blick */
+.umrechner-alle:not(:empty) {
+  display: grid;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 20px;
+  border-top: 1px solid var(--rand);
+}
+
+/* auf breiten Bildschirmen nicht über die ganze Karte, sonst stehen Name und Ergebnis weit auseinander */
+.umrechner-alle > * { max-width: 40rem; }
+
+.umrechner-alle h3 { margin: 0; font-size: 1.0625rem; }
+
+.programmtabelle .rechts { text-align: right; white-space: nowrap; }
+
+.alle-ziele tbody th { width: auto; }
+
+.alle-ziele tr.gruppe th {
+  padding-top: 18px;
+  font-size: 0.8125rem;
+  font-weight: 600;
+  color: var(--text-leise);
+}
+
+.alle-ziele tbody:first-of-type tr.gruppe th { padding-top: 10px; }
+
+.alle-ziele tr.gewaehlt > * { background: var(--akzent-weich); }
+.alle-ziele tr.gewaehlt > :first-child { padding-left: 8px; border-radius: var(--radius-klein) 0 0 var(--radius-klein); }
+.alle-ziele tr.gewaehlt > :last-child { padding-right: 8px; border-radius: 0 var(--radius-klein) var(--radius-klein) 0; }
+
 /* ---------- Programmformular ---------- */
 
 .quelle-gruppe {

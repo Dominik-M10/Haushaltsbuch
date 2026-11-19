@@ -30,9 +30,20 @@ export function nachTypUndName(a, b) {
   return TYPEN.indexOf(a.typ) - TYPEN.indexOf(b.typ) || a.name.localeCompare(b.name, 'de');
 }
 
+/**
+ * Das Programm, das zu einer Quelle gehört: gleicher Name wie die Quelle, Groß und Kleinschreibung egal.
+ * Zum Beispiel "Amex Membership Rewards" für amex. Liefert null, wenn es keins gibt.
+ */
+export function findeQuellProgramm(programme, quelleId) {
+  const quelle = QUELLEN.find((q) => q.id === quelleId);
+  if (!quelle) return null;
+  const name = quelle.name.toLowerCase();
+  return programme.find((p) => p.name.trim().toLowerCase() === name) ?? null;
+}
+
 /** Das Programm "Payback" in der Liste (Groß und Kleinschreibung egal) */
 export function findePayback(programme) {
-  return programme.find((p) => p.name.trim().toLowerCase() === 'payback') ?? null;
+  return findeQuellProgramm(programme, 'payback');
 }
 
 /**
@@ -118,12 +129,30 @@ export function umrechnen(programm, quelleId, punkte, programme) {
   };
 }
 
+/**
+ * Umrechnung zu allen Programmen, die über die Quelle erreichbar sind.
+ * Sortiert nach Typ (Airlines, Hotels, Bonusprogramme), darin das höchste Ergebnis zuerst.
+ * Programme, deren Weg nicht berechenbar ist (Eintrag mit fehler), stehen am Ende ihres Typs.
+ */
+export function alleUmrechnungen(programme, quelleId, punkte) {
+  return erreichbareProgramme(programme, quelleId)
+    .map((programm) => ({ programm, weg: transferweg(programm, quelleId, programme), ...umrechnen(programm, quelleId, punkte, programme) }))
+    .sort((a, b) => TYPEN.indexOf(a.programm.typ) - TYPEN.indexOf(b.programm.typ)
+      || (b.ergebnis ?? -1) - (a.ergebnis ?? -1)
+      || a.programm.name.localeCompare(b.programm.name, 'de'));
+}
+
 /** Kurztext für die Programmtabelle, zum Beispiel "direkt 5:4" oder "nein" */
 export function zuordnungText(programm, quelleId, programme) {
   const weg = transferweg(programm, quelleId, programme);
   if (!weg) return { text: 'nein' };
   if (weg.fehler) return { text: weg.art, hinweis: weg.hinweis, fehler: true };
   return { text: `${weg.art} ${verhaeltnisText(weg.quelle, weg.ziel)}`, hinweis: weg.hinweis };
+}
+
+/** Aktueller Stand eines Programms: der Eintrag mit dem jüngsten Datum, oder null */
+export function aktuellerStand(staende, programmId) {
+  return verlauf(staende, programmId).at(-1) ?? null;
 }
 
 /** Zwischenstände eines Programms in zeitlicher Reihenfolge, jeweils mit Differenz zum vorherigen Eintrag */

@@ -7,7 +7,7 @@ import { fehlertext } from '../fehler.js';
 import { bearbeitbareListe } from '../liste.js';
 import { segmentBalken } from '../diagramm.js';
 import {
-  cent, fixkostenMonatCent, ladeHaushalt, ladeSparziele, monatsuebersicht, speichereMiete, haushaltCsv, sparzielFortschritt,
+  cent, monatsbetragCent, ladeHaushalt, ladeSparziele, monatsuebersicht, speichereMiete, haushaltCsv, sparzielFortschritt,
 } from '../daten/haushalt.js';
 import { exportKarte } from '../export.js';
 import { speichereZeile, loescheZeile } from '../daten/tabellen.js';
@@ -202,21 +202,10 @@ export function haushaltsbuchSeite(container, kontext) {
   function zeichnen(d) {
     const u = monatsuebersicht(d);
 
-    const einkommen = einfacheListe('einkommen', 'Einkommen', d.einkommen, {
-      kopfWert: euroAusCent(u.einkommen),
-      leerText: 'Noch kein Einkommen erfasst.',
-      neuText: 'Einkommen hinzufügen',
-      felder: [
-        { name: 'bezeichnung', label: 'Bezeichnung', typ: 'text', pflicht: true },
-        { name: 'betrag', label: 'Betrag pro Monat', typ: 'euro', pflicht: true },
-      ],
-      zeile: (e) => ({ titel: e.bezeichnung, wert: euro(e.betrag) }),
-    });
-
-    const fixkosten = einfacheListe('fixkosten', 'Fixkosten', d.fixkosten, {
-      kopfWert: euroAusCent(u.fixkosten),
-      leerText: 'Noch keine Fixkosten erfasst.',
-      neuText: 'Fixkosten hinzufügen',
+    // Einkommen, Fixkosten und Sparen: je Eintrag Bezeichnung, Betrag und Intervall
+    const betragsListe = (tabelle, titel, eintraege, summeCent, texte) => einfacheListe(tabelle, titel, eintraege, {
+      kopfWert: euroAusCent(summeCent),
+      ...texte,
       felder: [
         { name: 'bezeichnung', label: 'Bezeichnung', typ: 'text', pflicht: true },
         { name: 'betrag', label: 'Betrag', typ: 'euro', pflicht: true },
@@ -229,19 +218,21 @@ export function haushaltsbuchSeite(container, kontext) {
       zeile: (e) => ({
         titel: e.bezeichnung,
         zusatz: e.intervall === 'jaehrlich' ? `jährlich ${euro(e.betrag)}` : 'monatlich',
-        wert: euroAusCent(fixkostenMonatCent(e)),
+        wert: euroAusCent(monatsbetragCent(e)),
       }),
     });
 
-    const sparen = einfacheListe('sparen', 'Sparen', d.sparen, {
-      kopfWert: euroAusCent(u.sparen),
+    const einkommen = betragsListe('einkommen', 'Einkommen', d.einkommen, u.einkommen, {
+      leerText: 'Noch kein Einkommen erfasst.',
+      neuText: 'Einkommen hinzufügen',
+    });
+    const fixkosten = betragsListe('fixkosten', 'Fixkosten', d.fixkosten, u.fixkosten, {
+      leerText: 'Noch keine Fixkosten erfasst.',
+      neuText: 'Fixkosten hinzufügen',
+    });
+    const sparen = betragsListe('sparen', 'Sparen', d.sparen, u.sparen, {
       leerText: 'Noch nichts zum Sparen erfasst.',
       neuText: 'Sparbetrag hinzufügen',
-      felder: [
-        { name: 'bezeichnung', label: 'Bezeichnung', typ: 'text', pflicht: true },
-        { name: 'betrag', label: 'Betrag pro Monat', typ: 'euro', pflicht: true },
-      ],
-      zeile: (e) => ({ titel: e.bezeichnung, wert: euro(e.betrag) }),
     });
 
     const miete = mieteKarte(d.miete, u, (werte) => aendern(() => speichereMiete(userId, werte)));

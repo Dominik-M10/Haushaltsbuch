@@ -9,8 +9,11 @@ export function cent(wert) {
   return Math.round(Number(wert) * 100);
 }
 
-/** Monatlicher Betrag einer Fixkostenzeile in Cent. Jährliche Beträge durch 12, auf ganze Cent gerundet. */
-export function fixkostenMonatCent(zeile) {
+/**
+ * Monatlicher Betrag einer Zeile aus Einkommen, Fixkosten oder Sparen in Cent.
+ * Jährliche Beträge durch 12, auf ganze Cent gerundet.
+ */
+export function monatsbetragCent(zeile) {
   const betrag = cent(zeile.betrag);
   return zeile.intervall === 'jaehrlich' ? Math.round(betrag / 12) : betrag;
 }
@@ -32,11 +35,11 @@ export async function ladeHaushalt() {
     abfrage(db.from('sparen').select('*').order('erstellt_am')),
     abfrage(db.from('miete').select('*').maybeSingle()),
   ]);
-  // Größte Position oben, Fixkosten nach ihrem Betrag pro Monat
+  // Größte Position oben, jährliche Beträge zählen mit ihrem Betrag pro Monat
   return {
-    einkommen: absteigend(einkommen, (z) => cent(z.betrag)),
-    fixkosten: absteigend(fixkosten, fixkostenMonatCent),
-    sparen: absteigend(sparen, (z) => cent(z.betrag)),
+    einkommen: absteigend(einkommen, monatsbetragCent),
+    fixkosten: absteigend(fixkosten, monatsbetragCent),
+    sparen: absteigend(sparen, monatsbetragCent),
     miete,
   };
 }
@@ -44,9 +47,9 @@ export async function ladeHaushalt() {
 /** Summen pro Monat in Cent: Einkommen, Fixkosten, Sparen, Miete (mein Anteil) und was übrig bleibt. */
 export function monatsuebersicht({ einkommen, fixkosten, sparen, miete }) {
   const summe = (liste, betrag) => liste.reduce((gesamt, zeile) => gesamt + betrag(zeile), 0);
-  const e = summe(einkommen, (z) => cent(z.betrag));
-  const f = summe(fixkosten, fixkostenMonatCent);
-  const s = summe(sparen, (z) => cent(z.betrag));
+  const e = summe(einkommen, monatsbetragCent);
+  const f = summe(fixkosten, monatsbetragCent);
+  const s = summe(sparen, monatsbetragCent);
   const m = miete ? cent(miete.mein_anteil) : 0;
   return { einkommen: e, fixkosten: f, sparen: s, miete: m, rest: e - f - s - m };
 }
@@ -82,13 +85,15 @@ export function haushaltCsv({ einkommen, fixkosten, sparen, miete, sparziele }) 
   if (!einkommen.length && !fixkosten.length && !sparen.length && !miete && !sparziele.length) {
     return { leer: 'Noch nichts zum Exportieren.' };
   }
+  // Einkommen, Fixkosten und Sparen: Betrag wie eingetragen, dazu Intervall und Betrag pro Monat
+  const zeile = (bereich, z) => [
+    bereich, textZelle(z.bezeichnung), betragZelle(z.betrag),
+    z.intervall === 'jaehrlich' ? 'jährlich' : 'monatlich', betragZelle(monatsbetragCent(z) / 100), '', '',
+  ];
   const zeilen = [
-    ...einkommen.map((z) => ['Einkommen', textZelle(z.bezeichnung), betragZelle(z.betrag), 'monatlich', betragZelle(z.betrag), '', '']),
-    ...fixkosten.map((z) => [
-      'Fixkosten', textZelle(z.bezeichnung), betragZelle(z.betrag),
-      z.intervall === 'jaehrlich' ? 'jährlich' : 'monatlich', betragZelle(fixkostenMonatCent(z) / 100), '', '',
-    ]),
-    ...sparen.map((z) => ['Sparen', textZelle(z.bezeichnung), betragZelle(z.betrag), 'monatlich', betragZelle(z.betrag), '', '']),
+    ...einkommen.map((z) => zeile('Einkommen', z)),
+    ...fixkosten.map((z) => zeile('Fixkosten', z)),
+    ...sparen.map((z) => zeile('Sparen', z)),
     ...(miete ? [
       ['Miete', 'Gesamtmiete', betragZelle(miete.gesamtmiete), 'monatlich', '', '', ''],
       ['Miete', 'Mein Anteil', betragZelle(miete.mein_anteil), 'monatlich', betragZelle(miete.mein_anteil), '', ''],

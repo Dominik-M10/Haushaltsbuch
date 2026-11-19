@@ -23,9 +23,9 @@ Alle Tabellen haben Row Level Security. Jeder angemeldete Benutzer sieht und än
 
 | Tabelle | Inhalt |
 |---|---|
-| `einkommen` | Bezeichnung, Betrag pro Monat |
+| `einkommen` | Bezeichnung, Betrag, Intervall (monatlich oder jährlich) |
 | `fixkosten` | Bezeichnung, Betrag, Intervall (monatlich oder jährlich) |
-| `sparen` | Bezeichnung, Betrag pro Monat |
+| `sparen` | Bezeichnung, Betrag, Intervall (monatlich oder jährlich) |
 | `miete` | Gesamtmiete und mein Anteil in Euro, eine Zeile pro Benutzer |
 | `sparziele` | Name, Zielbetrag, bisher gespart |
 | `programme` | Meilen und Hotelprogramme mit Zuordnung zu Amex, Revolut, Payback und Transferverhältnissen |
@@ -63,9 +63,10 @@ Diagrammfarben sind auf Farbsehschwäche geprüft, die erste Farbe ist der Akzen
 
 ## Regeln im Haushaltsbuch
 
-1. Alle Beträge sind ein fester Monatsplan. Jährliche Fixkosten werden durch 12 geteilt.
+1. Alle Beträge sind ein fester Monatsplan. Einkommen, Fixkosten und Sparen können monatlich oder jährlich sein,
+   jährliche Beträge werden durch 12 geteilt (zum Beispiel Weihnachtsgeld oder eine Versicherung).
 2. Einkommen, Fixkosten und Sparen sind nach Betrag sortiert, die größte Position steht oben.
-   Fixkosten zählen dabei mit ihrem Betrag pro Monat. Bei gleichem Betrag steht der ältere Eintrag oben.
+   Jährliche Beträge zählen dabei mit ihrem Betrag pro Monat. Bei gleichem Betrag steht der ältere Eintrag oben.
 3. Sparziele sind nach Fortschritt in Prozent sortiert, das am weitesten fortgeschrittene Ziel steht oben.
    Erreichte Ziele (100 % und mehr) stehen deshalb ganz oben.
 4. Der Export hat dieselbe Reihenfolge wie die Anzeige.
@@ -79,6 +80,12 @@ Diagrammfarben sind auf Farbsehschwäche geprüft, die erste Farbe ist der Akzen
    Das Gesamtverhältnis in der Tabelle ergibt sich daraus (bei Miles & More 3:1).
 4. Aktueller Stand ist der Eintrag mit dem jüngsten Datum. Die Kachel auf der Startseite zeigt
    den zuletzt angelegten oder geänderten Eintrag.
+5. Der Umrechner trägt bei den Punkten den aktuellen Stand der gewählten Quelle ein. Dazu sucht er das Programm
+   mit demselben Namen wie die Quelle: „Amex Membership Rewards“, „Revolut RevPoints“ oder „Payback“.
+   Wer ein solches Programm umbenennt, bekommt keine Vorbelegung mehr. Eine eigene Eingabe bleibt beim Wechsel
+   der Quelle stehen.
+6. Unter dem Ergebnis zeigt der Umrechner, was die Punkte bei allen erreichbaren Programmen ergeben,
+   nach Airlines, Hotels und Bonusprogrammen getrennt und darin mit dem höchsten Ergebnis zuerst.
 
 ## Export
 

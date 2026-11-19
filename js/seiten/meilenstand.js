@@ -15,6 +15,7 @@ import {
 import { exportKarte } from '../export.js';
 import {
   QUELLEN, TYPEN, einheit, erreichbareProgramme, umrechnen, zuordnungText, verhaeltnisText, verlauf,
+  findeQuellProgramm, aktuellerStand, alleUmrechnungen,
 } from '../daten/programme.js';
 
 const TYP_MEHRZAHL = { Airline: 'Airlines', Hotel: 'Hotels', Bonusprogramm: 'Bonusprogramme' };
@@ -239,6 +240,7 @@ function umrechnerKarte(daten) {
       knopf.addEventListener('change', () => {
         quelleId = q.id;
         programmeFuellen();
+        standVorbelegen();
         rechnen();
       });
       return h('label', { class: 'wahl', for: `quelle-${q.id}` }, knopf, h('span', {}, q.name));
@@ -248,9 +250,76 @@ function umrechnerKarte(daten) {
   const programmFeld = h('select', { class: 'eingabe', id: 'umrechner-programm' });
   const punkteFeld = h('input', {
     class: 'eingabe', id: 'umrechner-punkte', type: 'text', inputmode: 'numeric', autocomplete: 'off', placeholder: '0',
+    'aria-describedby': 'umrechner-stand',
   });
   const punkteName = h('label', { class: 'feld-name', for: 'umrechner-punkte' });
+  const standHinweis = h('p', { class: 'feld-hinweis', id: 'umrechner-stand' });
   const ergebnis = h('div', { class: 'umrechner-ergebnis', 'aria-live': 'polite' });
+  const alle = h('div', { class: 'umrechner-alle' });
+
+  // Punkte mit dem aktuellen Stand der Quelle vorbelegen (Programm mit gleichem Namen wie die Quelle).
+  // Eine eigene Eingabe bleibt beim Wechsel der Quelle stehen, nur ein leeres oder vorbelegtes Feld wird ersetzt.
+  let vorbelegt = '';
+  function standVorbelegen() {
+    const programm = findeQuellProgramm(daten.programme, quelleId);
+    const stand = programm ? aktuellerStand(daten.staende, programm.id) : null;
+    const text = stand ? zahl(stand.stand) : '';
+    if (!punkteFeld.value.trim() || punkteFeld.value === vorbelegt) {
+      punkteFeld.value = text;
+      vorbelegt = text;
+    }
+    if (stand) {
+      standHinweis.textContent = `Dein Stand bei ${programm.name} vom ${datum(stand.datum)}: ${zahl(stand.stand)}`;
+    } else if (programm) {
+      standHinweis.textContent = `Für ${programm.name} ist noch kein Stand erfasst.`;
+    } else {
+      standHinweis.textContent = '';
+    }
+    standHinweis.hidden = !standHinweis.textContent;
+  }
+
+  // Kurzer Weg unter dem Programmnamen, zum Beispiel "direkt 5:4" oder "über Payback 3:1"
+  function wegText({ weg, fehler }) {
+    const art = weg.ueberPayback ? 'über Payback' : weg.art;
+    if (fehler) return `${art}, nicht berechenbar`;
+    const hinweis = !weg.ueberPayback && weg.hinweis ? `, ${weg.hinweis}` : '';
+    return `${art} ${verhaeltnisText(weg.quelle, weg.ziel)}${hinweis}`;
+  }
+
+  /** Tabelle mit dem Ergebnis für alle erreichbaren Programme */
+  function alleZeigen(punkte) {
+    if (punkte == null) return alle.replaceChildren();
+    const quelle = QUELLEN.find((q) => q.id === quelleId);
+    const zeilen = alleUmrechnungen(daten.programme, quelleId, punkte);
+    if (!zeilen.length) return alle.replaceChildren();
+    const gruppen = TYPEN
+      .map((typ) => ({ typ, zeilen: zeilen.filter((z) => z.programm.typ === typ) }))
+      .filter((g) => g.zeilen.length);
+    alle.replaceChildren(
+      // "mit 1.000 Payback Punkten" (Dativ), RevPoints bleibt gleich
+      h('h3', {}, `Alle Ziele mit ${zahl(punkte)} ${quelle.einheit.replace(/Punkte$/, 'Punkten')}`),
+      h('div', { class: 'tabelle-huelle' },
+        h('table', { class: 'programmtabelle alle-ziele' },
+          h('thead', {}, h('tr', {},
+            h('th', { scope: 'col' }, 'Programm'),
+            h('th', { scope: 'col', class: 'rechts' }, 'Ergebnis'),
+          )),
+          gruppen.map((g) => h('tbody', {},
+            h('tr', { class: 'gruppe' }, h('th', { scope: 'colgroup', colspan: 2 }, TYP_MEHRZAHL[g.typ])),
+            g.zeilen.map((z) => h('tr', { class: z.programm.id === programmFeld.value ? 'gewaehlt' : null },
+              h('th', { scope: 'row' },
+                h('a', { href: `#/meilenstand/p/${z.programm.id}` }, z.programm.name),
+                h('span', { class: 'zelle-hinweis' }, wegText(z)),
+              ),
+              h('td', { class: z.fehler ? 'rechts nein' : 'rechts' },
+                z.fehler ? 'fehlt' : `${zahl(z.ergebnis)} ${einheit(z.programm.typ)}`),
+            )),
+          )),
+        ),
+      ),
+      h('p', { class: 'feld-hinweis' }, 'Alle Ergebnisse auf ganze Zahlen abgerundet.'),
+    );
+  }
 
   function programmeFuellen() {
     const vorher = programmFeld.value;
@@ -274,9 +343,10 @@ function umrechnerKarte(daten) {
   function rechnen() {
     const programm = daten.programme.find((p) => p.id === programmFeld.value);
     const roh = punkteFeld.value.trim();
+    const punkte = roh ? leseGanzzahl(roh) : NaN;
+    alleZeigen(Number.isNaN(punkte) ? null : punkte);
     if (!programm) return zeigen(h('p', { class: 'leise' }, 'Über diese Quelle ist kein Programm erreichbar.'));
     if (!roh) return zeigen(h('p', { class: 'leise' }, 'Punkte eingeben, dann erscheint hier das Ergebnis.'));
-    const punkte = leseGanzzahl(roh);
     if (Number.isNaN(punkte)) return zeigen(h('p', { class: 'fehlermeldung' }, 'Bitte eine ganze Zahl eingeben, zum Beispiel 10.000.'));
 
     const r = umrechnen(programm, quelleId, punkte, daten.programme);
@@ -303,6 +373,7 @@ function umrechnerKarte(daten) {
   programmFeld.addEventListener('change', rechnen);
   punkteFeld.addEventListener('input', rechnen);
   programmeFuellen();
+  standVorbelegen();
   rechnen();
 
   return h('section', { class: 'karte bereich breit' },
@@ -314,10 +385,11 @@ function umrechnerKarte(daten) {
           h('label', { class: 'feld-name', for: 'umrechner-programm' }, '2. Ziel'),
           h('span', { class: 'auswahl-huelle' }, programmFeld),
         ),
-        h('div', { class: 'feld' }, punkteName, punkteFeld),
+        h('div', { class: 'feld' }, punkteName, punkteFeld, standHinweis),
       ),
       ergebnis,
     ),
+    alle,
   );
 }
 
