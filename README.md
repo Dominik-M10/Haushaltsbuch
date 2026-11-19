@@ -36,9 +36,9 @@ Transferverhältnisse sind als zwei Zahlen gespeichert (Quelle und Ziel), 5 und 
 Bei Miles & More über Amex ist `amex_ueber_payback` gesetzt. Die App rechnet dann in zwei Schritten:
 Amex zu Payback mit dem Verhältnis aus der Zeile „Payback“, danach Payback zu Miles & More.
 
-Beim Anlegen eines neuen Benutzerkontos werden automatisch 30 Programme eingetragen, die Verhältnisse haben den Stand 18.11.2026.
-Dazu gehört seit dem 19.11.2026 „Amex Membership Rewards“ als Bonusprogramm, damit sich auch der Amex Punktestand
-erfassen lässt. Es ist selbst eine Quelle und deshalb über keine Quelle erreichbar.
+Beim Anlegen eines neuen Benutzerkontos werden automatisch 31 Programme eingetragen, die Verhältnisse haben den Stand 18.11.2026.
+Dazu gehören seit dem 19.11.2026 „Amex Membership Rewards“ und „Revolut RevPoints“ als Bonusprogramme, damit sich auch
+die Punktestände der beiden Quellen erfassen lassen. Sie sind selbst Quellen und deshalb über keine Quelle erreichbar.
 
 ## Design
 
