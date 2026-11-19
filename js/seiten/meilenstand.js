@@ -157,6 +157,46 @@ function zielZeile(programm, stand, ziel) {
   );
 }
 
+// Sortierung im Reiter Stände: alphabetisch oder nach Stand. Die Wahl merkt sich das Gerät.
+const SORTIER_SCHLUESSEL = 'meilenstand.sortierung';
+let sortierung = (() => {
+  try {
+    return localStorage.getItem(SORTIER_SCHLUESSEL) === 'stand' ? 'stand' : 'name';
+  } catch {
+    return 'name';
+  }
+})();
+
+function sortierungMerken(wert) {
+  sortierung = wert;
+  try {
+    localStorage.setItem(SORTIER_SCHLUESSEL, wert);
+  } catch {
+    // Ohne Speicher (zum Beispiel gesperrt) gilt die Wahl bis zum Neuladen der Seite
+  }
+}
+
+const STAND_REIHENFOLGE = {
+  name: (a, b) => nachName(a.p, b.p),
+  // Höchster Stand oben, Programme nur mit Ziel ganz unten, bei Gleichstand alphabetisch
+  stand: (a, b) => (b.letzter?.stand ?? -1) - (a.letzter?.stand ?? -1) || nachName(a.p, b.p),
+};
+
+/** Zwei Knöpfe zum Umschalten der Sortierung, ruft gewaehlt() nach jedem Wechsel auf */
+function sortierSchalter(gewaehlt) {
+  const knoepfe = [['name', 'Alphabetisch'], ['stand', 'Nach Stand']].map(([wert, text]) => {
+    const knopf = h('button', { class: 'umschalter-knopf', type: 'button', 'aria-pressed': String(wert === sortierung) }, text);
+    knopf.addEventListener('click', () => {
+      if (wert === sortierung) return;
+      sortierungMerken(wert);
+      knoepfe.forEach((k) => k.setAttribute('aria-pressed', String(k === knopf)));
+      gewaehlt();
+    });
+    return knopf;
+  });
+  return h('div', { class: 'umschalter', role: 'group', 'aria-label': 'Sortierung der Stände' }, knoepfe);
+}
+
 function staendeKarte(daten, aendern) {
   const zeilen = daten.programme
     .map((p) => {
@@ -178,22 +218,35 @@ function staendeKarte(daten, aendern) {
     ),
   );
 
-  // Je Kategorie eine Überschrift mit Trennlinie (Airlines, Hotels, Bonusprogramme), darin alphabetisch
-  const gruppen = TYPEN
-    .map((typ) => ({ typ, zeilen: zeilen.filter((z) => z.p.typ === typ).sort((a, b) => nachName(a.p, b.p)) }))
-    .filter((g) => g.zeilen.length);
-  const inhalt = gruppen.length
-    ? gruppen.map((g) => h('div', { class: 'gruppe' },
-        h('h3', { class: 'gruppen-titel' }, TYP_MEHRZAHL[g.typ]),
-        h('ul', { class: 'liste' }, g.zeilen.map(zeile)),
-      ))
-    : h('ul', { class: 'liste' },
-        h('li', { class: 'liste-leer' }, 'Noch kein Stand erfasst. Über „Stand erfassen“ trägst du den ersten ein.'));
+  const kopf = h('div', { class: 'bereich-kopf' }, h('h2', {}, 'Meine Stände'));
+  const erfassen = standErfassen(daten, aendern);
+  if (!zeilen.length) {
+    return h('section', { class: 'karte bereich breit' },
+      kopf,
+      h('ul', { class: 'liste' },
+        h('li', { class: 'liste-leer' }, 'Noch kein Stand erfasst. Über „Stand erfassen“ trägst du den ersten ein.')),
+      erfassen,
+    );
+  }
+
+  // Je Kategorie eine Überschrift mit Trennlinie (Airlines, Hotels, Bonusprogramme), darin nach der gewählten Sortierung
+  const gruppenHuelle = h('div', { class: 'staende-gruppen' });
+  function gruppenZeichnen() {
+    const gruppen = TYPEN
+      .map((typ) => ({ typ, zeilen: zeilen.filter((z) => z.p.typ === typ).sort(STAND_REIHENFOLGE[sortierung]) }))
+      .filter((g) => g.zeilen.length);
+    gruppenHuelle.replaceChildren(...gruppen.map((g) => h('div', { class: 'gruppe' },
+      h('h3', { class: 'gruppen-titel' }, TYP_MEHRZAHL[g.typ]),
+      h('ul', { class: 'liste' }, g.zeilen.map(zeile)),
+    )));
+  }
+  gruppenZeichnen();
 
   return h('section', { class: 'karte bereich breit' },
-    h('div', { class: 'bereich-kopf' }, h('h2', {}, 'Meine Stände')),
-    inhalt,
-    standErfassen(daten, aendern),
+    kopf,
+    sortierSchalter(gruppenZeichnen),
+    gruppenHuelle,
+    erfassen,
   );
 }
 

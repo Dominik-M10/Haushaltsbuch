@@ -78,8 +78,9 @@ Diagrammfarben sind auf Farbsehschwäche geprüft, die erste Farbe ist der Akzen
 3. Steht bei einem Programm „Amex über Payback“, rechnet der Umrechner zuerst mit dem Amex Verhältnis
    des Programms „Payback“ und danach mit dem Payback Verhältnis des Programms.
    Das Gesamtverhältnis in der Tabelle ergibt sich daraus (bei Miles & More 3:1).
-4. Aktueller Stand ist der Eintrag mit dem jüngsten Datum. Die Kachel auf der Startseite zeigt
-   den zuletzt angelegten oder geänderten Eintrag.
+4. Aktueller Stand ist der Eintrag mit dem jüngsten Datum. Die Kachel auf der Startseite zeigt groß
+   die Summe der aktuellen Stände aller Programme, Meilen und Punkte zusammengezählt (also auch Hotels,
+   Amex, Revolut und Payback). Darunter steht klein der zuletzt angelegte oder geänderte Eintrag.
 5. Der Umrechner trägt bei den Punkten den aktuellen Stand der gewählten Quelle ein. Dazu sucht er das Programm
    mit demselben Namen wie die Quelle: „Amex Membership Rewards“, „Revolut RevPoints“ oder „Payback“.
    Wer ein solches Programm umbenennt, bekommt keine Vorbelegung mehr. Eine eigene Eingabe bleibt beim Wechsel
@@ -88,6 +89,9 @@ Diagrammfarben sind auf Farbsehschwäche geprüft, die erste Farbe ist der Akzen
 7. Programmlisten sind überall gleich geordnet: zuerst Airlines, dann Hotels, dann Bonusprogramme,
    jede Kategorie mit Überschrift und Trennlinie, darin alphabetisch. Das gilt für den Reiter Stände,
    die Übersicht im Umrechner, die Auswahllisten und den Reiter Programme.
+8. Im Reiter Stände lässt sich innerhalb der Kategorien auch nach Stand sortieren, der höchste Stand oben.
+   Programme, die nur ein Ziel und noch keinen Stand haben, stehen dann am Ende ihrer Kategorie.
+   Die gewählte Sortierung merkt sich jedes Gerät für sich, ohne Wahl gilt alphabetisch.
 
 ## Export
 

@@ -999,8 +999,45 @@ textarea.eingabe { resize: vertical; }
   color: var(--text);
 }
 
-.bereich-kopf + .gruppe .gruppen-titel,
+.staende-gruppen > .gruppe:first-child .gruppen-titel,
 .alle-ziele tbody:first-of-type tr.gruppe th { padding-top: 6px; }
+
+.staende-gruppen {
+  display: grid;
+  gap: 14px;
+}
+
+/* Umschalter, zum Beispiel für die Sortierung im Reiter Stände (gleiche Optik wie die Reiter) */
+.umschalter {
+  justify-self: start;
+  display: inline-flex;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--radius);
+  background: var(--flaeche-2);
+}
+
+.umschalter-knopf {
+  min-height: 44px;
+  padding: 8px 14px;
+  border: 0;
+  border-radius: var(--radius-knopf);
+  background: transparent;
+  color: var(--text-leise);
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.umschalter-knopf[aria-pressed="true"] {
+  background: var(--flaeche);
+  color: var(--text);
+  box-shadow: 0 0 0 1px var(--rand);
+}
+
+@media (hover: hover) {
+  .umschalter-knopf[aria-pressed="false"]:hover { color: var(--text); }
+}
 
 /* letzte Zeile vor der nächsten Kategorie ohne eigene Linie, die Trennlinie reicht */
 .alle-ziele tbody tr:last-child > * { border-bottom: 0; }

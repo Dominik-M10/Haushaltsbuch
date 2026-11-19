@@ -1,7 +1,7 @@
 // Daten für den Meilenstand: Programme, Zwischenstände und Meilenziele.
 import { db } from '../supabase.js';
 import { datum, zahl } from '../format.js';
-import { einheit, verlauf } from './programme.js';
+import { einheit, verlauf, aktuellerStand } from './programme.js';
 import { abfrage, speichereZeile, loescheZeile } from './tabellen.js';
 import { csvText, textZelle, zahlZelle } from '../export.js';
 
@@ -42,15 +42,21 @@ export async function ladeLetztenStand() {
   return data;
 }
 
-/** Kurzinfo für die Kachel auf der Startseite */
+/** Kurzinfo für die Kachel auf der Startseite: Summe aller aktuellen Stände und der zuletzt geänderte Eintrag */
 export async function kurzinfoMeilen() {
-  const stand = await ladeLetztenStand();
-  if (!stand) return { text: 'Noch kein Stand erfasst' };
+  const [staende, letzter] = await Promise.all([
+    abfrage(db.from('meilenstaende').select('programm_id, datum, stand, erstellt_am')),
+    ladeLetztenStand(),
+  ]);
+  if (!letzter) return { text: 'Noch kein Stand erfasst' };
 
+  // Aktueller Stand je Programm ist der Eintrag mit dem jüngsten Datum, Meilen und Punkte zählen zusammen
+  const programmIds = new Set(staende.map((s) => s.programm_id));
+  const summe = [...programmIds].reduce((s, id) => s + aktuellerStand(staende, id).stand, 0);
   return {
-    beschriftung: 'Zuletzt geändert',
-    wert: `${zahl(stand.stand)} ${einheit(stand.programme.typ)}`,
-    zusatz: `${stand.programme.name} · Stand vom ${datum(stand.datum)}`,
+    beschriftung: 'Meilen und Punkte insgesamt',
+    wert: zahl(summe),
+    zusatz: `Zuletzt geändert: ${letzter.programme.name}, ${zahl(letzter.stand)} ${einheit(letzter.programme.typ)} vom ${datum(letzter.datum)}`,
   };
 }
 
