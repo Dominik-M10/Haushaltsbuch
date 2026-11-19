@@ -179,6 +179,41 @@ input, select, textarea, button {
   color: var(--text-leise);
 }
 
+/* ---------- Hinweis ohne Verbindung (oberhalb der Seite, gleiche Breite wie .app) ---------- */
+
+.verbindung {
+  max-width: 40rem;
+  margin: 0 auto;
+  padding: 0 var(--abstand);
+}
+
+.verbindung-hinweis {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin: var(--abstand) 0 0;
+  padding: 10px 14px;
+  border-radius: var(--radius-klein);
+  background: var(--akzent-weich);
+  color: var(--text);
+}
+
+.verbindung-hinweis p { margin: 0; }
+
+@media (min-width: 768px) {
+  .verbindung {
+    max-width: 64rem;
+    padding: 0 32px;
+  }
+  .verbindung-hinweis { margin-top: 24px; }
+}
+
+@media (min-width: 1200px) {
+  .verbindung { max-width: 76rem; }
+}
+
 /* ---------- Kopfzeile ---------- */
 
 .kopf {

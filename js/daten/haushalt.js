@@ -3,6 +3,7 @@
 import { db } from '../supabase.js';
 import { euroAusCent, monatsname } from '../format.js';
 import { abfrage } from './tabellen.js';
+import { mitZwischenspeicher } from '../zwischenspeicher.js';
 import { csvText, textZelle, betragZelle } from '../export.js';
 
 export function cent(wert) {
@@ -34,12 +35,12 @@ export function sparzielFortschritt(ziel) {
 }
 
 export async function ladeHaushalt() {
-  const [einkommen, fixkosten, sparen, miete] = await Promise.all([
+  const [einkommen, fixkosten, sparen, miete] = await mitZwischenspeicher('haushalt', () => Promise.all([
     abfrage(db.from('einkommen').select('*').order('erstellt_am')),
     abfrage(db.from('fixkosten').select('*').order('erstellt_am')),
     abfrage(db.from('sparen').select('*').order('erstellt_am')),
     abfrage(db.from('mietpositionen').select('*').order('erstellt_am')),
-  ]);
+  ]));
   // Größte Position oben, jährliche Beträge zählen mit ihrem Betrag pro Monat, bei der Miete zählt mein Anteil
   return {
     einkommen: absteigend(einkommen, monatsbetragCent),
@@ -78,7 +79,7 @@ export async function kurzinfoHaushalt() {
 
 /** Sparziele mit dem größten Fortschritt oben */
 export async function ladeSparziele() {
-  const ziele = await abfrage(db.from('sparziele').select('*').order('erstellt_am'));
+  const ziele = await mitZwischenspeicher('sparziele', () => abfrage(db.from('sparziele').select('*').order('erstellt_am')));
   return absteigend(ziele, sparzielFortschritt);
 }
 

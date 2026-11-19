@@ -106,6 +106,20 @@ Die CSV Dateien sind für Excel und Numbers mit deutschen Einstellungen gemacht:
 Komma bei Beträgen, Datum als TT.MM.JJJJ. Texte, die mit = + - oder @ beginnen, bekommen ein ' davor,
 damit Tabellenprogramme sie nicht als Formel ausführen.
 
+## Ohne Verbindung
+
+1. Die App legt ihre Dateien über einen Service Worker (`sw.js`) auf dem Gerät ab. Jede Datei kommt zuerst
+   aus dem Netz, ohne Verbindung aus dem Speicher. Neue Versionen kommen dadurch sofort an.
+2. Die zuletzt geladenen Daten merkt sich die App je Benutzer im Browser (`js/zwischenspeicher.js`). Ohne Verbindung
+   zeigt sie diesen Stand mit einem Hinweis samt Uhrzeit. Ändern geht erst wieder mit Verbindung.
+3. Weiß das Gerät, dass es offline ist (zum Beispiel im Flugmodus), nimmt die App sofort den gespeicherten Stand.
+   Das klappt auch, wenn die Anmeldung inzwischen abgelaufen ist, solange sie noch auf dem Gerät liegt.
+   Bei schwachem Netz, das das Gerät für eine Verbindung hält, wartet die App, bis die Anfragen scheitern.
+4. Kommt die Verbindung zurück, lädt die App nicht von selbst neu, damit ein angefangenes Formular nicht verloren geht.
+   Der Hinweis bietet dann „Aktualisieren“ an.
+5. Gespeichert sind nur Bereiche, die mit Verbindung schon einmal geöffnet wurden.
+6. Beim Abmelden löscht die App die gespeicherten Daten auf dem Gerät.
+
 ## Einrichtung
 
 1. Im Supabase Dashboard unter Authentication ein Benutzerkonto mit Mailadresse und Passwort anlegen.
@@ -150,5 +164,7 @@ Danach im Browser `http://localhost:8080` öffnen.
 | `js/daten/programme.js` | Regeln für Transferwege und Umrechner (ohne Datenbank, einzeln testbar) |
 | `js/fehler.js` | Deutsche Fehlermeldungen |
 | `js/export.js` | CSV Export (Semikolon, Komma bei Beträgen, UTF-8) |
+| `js/zwischenspeicher.js` | Zuletzt geladene Daten für die Nutzung ohne Verbindung |
+| `sw.js` | Service Worker, hält die Dateien der App auf dem Gerät |
 | `vendor/supabase.js` | Lokale Kopie von supabase-js 2.119.1 (MIT Lizenz) |
 | `fonts/` | Schrift Figtree (SIL Open Font License) |

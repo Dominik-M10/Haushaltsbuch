@@ -1,12 +1,27 @@
 // Verständliche deutsche Fehlermeldungen für Fehler aus Eingaben und aus der Datenbank.
 import { Eingabefehler } from './eingabe.js';
 
+/** true, wenn der Fehler an der Verbindung liegt (Chrome, Firefox und Safari melden das unterschiedlich) */
+export function istNetzfehler(fehler) {
+  if (fehler instanceof Eingabefehler) return false;
+  const text = `${fehler?.message ?? ''} ${fehler?.details ?? ''}`;
+  return /Failed to fetch|NetworkError|Load failed|network/i.test(text) || !navigator.onLine;
+}
+
+/**
+ * Weiß das Gerät, dass es keine Verbindung hat (zum Beispiel im Flugmodus), sofort mit einem Verbindungsfehler abbrechen.
+ * Sonst wartet eine Anfrage mit abgelaufener Anmeldung bis zu etwa 30 Sekunden, bis Supabase aufgibt.
+ */
+export function pruefeVerbindung() {
+  if (!navigator.onLine) throw new Error('NetworkError: das Gerät ist offline');
+}
+
 export function fehlertext(fehler) {
   if (fehler instanceof Eingabefehler) return fehler.message;
 
   const text = `${fehler?.message ?? ''} ${fehler?.details ?? ''}`;
 
-  if (/Failed to fetch|NetworkError|Load failed|network/i.test(text) || !navigator.onLine) {
+  if (istNetzfehler(fehler)) {
     return 'Keine Verbindung zum Server. Bitte die Internetverbindung prüfen.';
   }
   if (fehler?.code === '23514') {
