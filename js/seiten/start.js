@@ -123,7 +123,8 @@ export function startSeite(container, kontext) {
         + 'nach Face ID, Touch ID oder dem Gerätecode.';
     } catch (fehler) {
       console.warn(fehler);
-      meldung.textContent = 'App Sperre ist nicht eingeschaltet: Face ID oder Touch ID wurde abgebrochen oder hat nicht geklappt.';
+      meldung.textContent = 'App Sperre ist nicht eingeschaltet: Face ID oder Touch ID wurde abgebrochen oder hat nicht geklappt. '
+        + `(Technischer Grund: ${fehler?.name ?? 'unbekannt'}${fehler?.message ? `, ${fehler.message}` : ''})`;
     } finally {
       sperreKnopf.disabled = false;
       sperreBeschriften();

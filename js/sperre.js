@@ -141,7 +141,8 @@ async function entsperren(vomKnopf) {
     // Ohne Antippen lehnt der Browser oft still ab, dann einfach auf den Knopf warten
     if (!vomKnopf) return;
     console.warn('Entsperren abgebrochen oder fehlgeschlagen', fehler);
-    meldung.textContent = 'Entsperren hat nicht geklappt. Bitte noch einmal versuchen oder abmelden und mit Passwort anmelden.';
+    meldung.textContent = 'Entsperren hat nicht geklappt. Bitte noch einmal versuchen oder abmelden und mit Passwort anmelden. '
+      + `(Technischer Grund: ${fehler?.name ?? 'unbekannt'}${fehler?.message ? `, ${fehler.message}` : ''})`;
     meldung.hidden = false;
   }
 }
