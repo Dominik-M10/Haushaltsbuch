@@ -163,32 +163,36 @@ function staendeKarte(daten, aendern) {
       const v = verlauf(daten.staende, p.id);
       return { p, letzter: v.at(-1), ziel: daten.ziele.find((z) => z.programm_id === p.id) };
     })
-    .filter((z) => z.letzter || z.ziel)
-    .sort((a, b) => nachName(a.p, b.p));
+    .filter((z) => z.letzter || z.ziel);
 
-  const liste = h('ul', { class: 'liste' });
-  if (!zeilen.length) {
-    liste.append(h('li', { class: 'liste-leer' }, 'Noch kein Stand erfasst. Über „Stand erfassen“ trägst du den ersten ein.'));
-  }
-  for (const { p, letzter, ziel } of zeilen) {
-    const e = einheit(p.typ);
-    liste.append(h('li', {},
-      h('a', { class: 'zeile', href: `#/meilenstand/p/${p.id}` },
-        h('span', { class: 'zeile-text' },
-          h('span', { class: 'zeile-titel' }, p.name),
-          h('span', { class: 'zeile-zusatz' }, letzter
-            ? `Stand vom ${datum(letzter.datum)} · ${differenzText(letzter.differenz)}`
-            : 'Noch kein Stand erfasst'),
-        ),
-        h('span', { class: 'zeile-wert' }, letzter ? `${zahl(letzter.stand)} ${e}` : ''),
-        ziel ? zielZeile(p, letzter?.stand ?? 0, ziel) : null,
+  const zeile = ({ p, letzter, ziel }) => h('li', {},
+    h('a', { class: 'zeile', href: `#/meilenstand/p/${p.id}` },
+      h('span', { class: 'zeile-text' },
+        h('span', { class: 'zeile-titel' }, p.name),
+        h('span', { class: 'zeile-zusatz' }, letzter
+          ? `Stand vom ${datum(letzter.datum)} · ${differenzText(letzter.differenz)}`
+          : 'Noch kein Stand erfasst'),
       ),
-    ));
-  }
+      h('span', { class: 'zeile-wert' }, letzter ? `${zahl(letzter.stand)} ${einheit(p.typ)}` : ''),
+      ziel ? zielZeile(p, letzter?.stand ?? 0, ziel) : null,
+    ),
+  );
+
+  // Je Kategorie eine Überschrift mit Trennlinie (Airlines, Hotels, Bonusprogramme), darin alphabetisch
+  const gruppen = TYPEN
+    .map((typ) => ({ typ, zeilen: zeilen.filter((z) => z.p.typ === typ).sort((a, b) => nachName(a.p, b.p)) }))
+    .filter((g) => g.zeilen.length);
+  const inhalt = gruppen.length
+    ? gruppen.map((g) => h('div', { class: 'gruppe' },
+        h('h3', { class: 'gruppen-titel' }, TYP_MEHRZAHL[g.typ]),
+        h('ul', { class: 'liste' }, g.zeilen.map(zeile)),
+      ))
+    : h('ul', { class: 'liste' },
+        h('li', { class: 'liste-leer' }, 'Noch kein Stand erfasst. Über „Stand erfassen“ trägst du den ersten ein.'));
 
   return h('section', { class: 'karte bereich breit' },
     h('div', { class: 'bereich-kopf' }, h('h2', {}, 'Meine Stände')),
-    liste,
+    inhalt,
     standErfassen(daten, aendern),
   );
 }

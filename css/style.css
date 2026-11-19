@@ -986,14 +986,24 @@ textarea.eingabe { resize: vertical; }
 
 .alle-ziele tbody th { width: auto; }
 
+/* Kategorien (Airlines, Hotels, Bonusprogramme): Überschrift mit kräftiger Trennlinie darunter */
+.gruppen-titel,
 .alle-ziele tr.gruppe th {
-  padding-top: 18px;
+  margin: 0;
+  padding: 22px 0 8px;
+  border-bottom: 2px solid var(--text);
   font-size: 0.8125rem;
-  font-weight: 600;
-  color: var(--text-leise);
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text);
 }
 
-.alle-ziele tbody:first-of-type tr.gruppe th { padding-top: 10px; }
+.bereich-kopf + .gruppe .gruppen-titel,
+.alle-ziele tbody:first-of-type tr.gruppe th { padding-top: 6px; }
+
+/* letzte Zeile vor der nächsten Kategorie ohne eigene Linie, die Trennlinie reicht */
+.alle-ziele tbody tr:last-child > * { border-bottom: 0; }
 
 .alle-ziele tr.gewaehlt > * { background: var(--akzent-weich); }
 .alle-ziele tr.gewaehlt > :first-child { padding-left: 8px; border-radius: var(--radius-klein) 0 0 var(--radius-klein); }

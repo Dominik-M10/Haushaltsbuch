@@ -131,15 +131,11 @@ export function umrechnen(programm, quelleId, punkte, programme) {
 
 /**
  * Umrechnung zu allen Programmen, die über die Quelle erreichbar sind.
- * Sortiert nach Typ (Airlines, Hotels, Bonusprogramme), darin das höchste Ergebnis zuerst.
- * Programme, deren Weg nicht berechenbar ist (Eintrag mit fehler), stehen am Ende ihres Typs.
+ * Reihenfolge wie in der Auswahlliste: nach Typ (Airlines, Hotels, Bonusprogramme), darin alphabetisch.
  */
 export function alleUmrechnungen(programme, quelleId, punkte) {
   return erreichbareProgramme(programme, quelleId)
-    .map((programm) => ({ programm, weg: transferweg(programm, quelleId, programme), ...umrechnen(programm, quelleId, punkte, programme) }))
-    .sort((a, b) => TYPEN.indexOf(a.programm.typ) - TYPEN.indexOf(b.programm.typ)
-      || (b.ergebnis ?? -1) - (a.ergebnis ?? -1)
-      || a.programm.name.localeCompare(b.programm.name, 'de'));
+    .map((programm) => ({ programm, weg: transferweg(programm, quelleId, programme), ...umrechnen(programm, quelleId, punkte, programme) }));
 }
 
 /** Kurztext für die Programmtabelle, zum Beispiel "direkt 5:4" oder "nein" */

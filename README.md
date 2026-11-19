@@ -84,8 +84,10 @@ Diagrammfarben sind auf Farbsehschwäche geprüft, die erste Farbe ist der Akzen
    mit demselben Namen wie die Quelle: „Amex Membership Rewards“, „Revolut RevPoints“ oder „Payback“.
    Wer ein solches Programm umbenennt, bekommt keine Vorbelegung mehr. Eine eigene Eingabe bleibt beim Wechsel
    der Quelle stehen.
-6. Unter dem Ergebnis zeigt der Umrechner, was die Punkte bei allen erreichbaren Programmen ergeben,
-   nach Airlines, Hotels und Bonusprogrammen getrennt und darin mit dem höchsten Ergebnis zuerst.
+6. Unter dem Ergebnis zeigt der Umrechner, was die Punkte bei allen erreichbaren Programmen ergeben.
+7. Programmlisten sind überall gleich geordnet: zuerst Airlines, dann Hotels, dann Bonusprogramme,
+   jede Kategorie mit Überschrift und Trennlinie, darin alphabetisch. Das gilt für den Reiter Stände,
+   die Übersicht im Umrechner, die Auswahllisten und den Reiter Programme.
 
 ## Export
 
