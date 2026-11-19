@@ -507,6 +507,45 @@ input, select, textarea, button {
 
 /* ---------- Fußzeile ---------- */
 
+/* Fuß der Startseite: Anmeldung, App Sperre, Abmelden */
+.fuss-knoepfe {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.fuss-meldung {
+  flex-basis: 100%;
+  margin: 0;
+  color: var(--text);
+}
+
+/* ---------- App Sperre (js/sperre.js) ---------- */
+
+/* Gesperrt: nur der Sperrbildschirm ist zu sehen, der Rest ist weder sichtbar noch per Tastatur erreichbar */
+body.gesperrt > :not(.sperre) { display: none !important; }
+
+.sperre {
+  display: grid;
+  place-items: center;
+  min-height: 90vh;
+  min-height: 90dvh;
+  padding: var(--abstand);
+}
+
+.sperre-inhalt {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  width: 100%;
+  max-width: 22rem;
+  text-align: center;
+}
+
+.sperre-inhalt h1 { margin: 8px 0 0; font-size: 1.375rem; }
+.sperre-inhalt p { margin: 0; }
+.sperre-symbol { border-radius: 16px; }
+
 .fuss {
   display: flex;
   flex-wrap: wrap;

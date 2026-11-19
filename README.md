@@ -130,6 +130,19 @@ damit Tabellenprogramme sie nicht als Formel ausführen.
 5. Gespeichert sind nur Bereiche, die mit Verbindung schon einmal geöffnet wurden.
 6. Beim Abmelden löscht die App die gespeicherten Daten auf dem Gerät.
 
+## App Sperre
+
+1. Auf der Startseite unten lässt sich pro Gerät „App Sperre einschalten“. Der Knopf erscheint nur auf Geräten
+   mit Face ID, Touch ID oder einem anderen Entsperren des Geräts.
+2. Gesperrt wird beim Öffnen der App und wenn sie mindestens eine Minute im Hintergrund war. Entsperrt wird mit
+   Face ID, Touch ID oder dem Gerätecode. Nach einer Anmeldung mit Passwort ist die App nicht gesperrt.
+3. Technisch ist das ein Passkey (WebAuthn) nur für dieses Gerät, Supabase ist nicht beteiligt (`js/sperre.js`).
+   Es funktioniert deshalb auch ohne Verbindung.
+4. Die Prüfung läuft nur im Browser. Sie schützt vor fremden Blicken auf ein entsperrtes Gerät, die Daten auf dem
+   Gerät verschlüsselt sie nicht.
+5. Klappt das Entsperren nicht mehr (zum Beispiel weil der Passkey gelöscht wurde), führt „Abmelden“ auf dem
+   Sperrbildschirm zur Anmeldung mit Passwort. Danach die App Sperre aus und wieder einschalten.
+
 ## Einrichtung
 
 1. Im Supabase Dashboard unter Authentication ein Benutzerkonto mit Mailadresse und Passwort anlegen.
@@ -179,5 +192,6 @@ Danach im Browser `http://localhost:8080` öffnen.
 | `js/export.js` | CSV Export (Semikolon, Komma bei Beträgen, UTF-8) |
 | `js/zwischenspeicher.js` | Zuletzt geladene Daten für die Nutzung ohne Verbindung |
 | `sw.js` | Service Worker, hält die Dateien der App auf dem Gerät |
+| `js/sperre.js` | App Sperre mit Face ID, Touch ID oder Gerätecode |
 | `vendor/supabase.js` | Lokale Kopie von supabase-js 2.119.1 (MIT Lizenz) |
 | `fonts/` | Schrift Figtree (SIL Open Font License) |

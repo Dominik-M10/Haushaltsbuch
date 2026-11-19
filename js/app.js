@@ -11,6 +11,7 @@ import { bereiche } from './bereiche.js';
 import { h } from './ui.js';
 import { ZEITZONE } from './format.js';
 import { setzeBenutzer, neueAnsicht, allesLoeschen } from './zwischenspeicher.js';
+import { sperreEinrichten, sperreBeimOeffnen, sperreAufheben } from './sperre.js';
 
 // Seiten, die nach dem Login erreichbar sind: die Startseite und alle Bereiche aus bereiche.js
 const seiten = {
@@ -80,6 +81,7 @@ db.auth.onAuthStateChange((ereignis, neueSitzung) => {
     // Liegt die Anmeldung aber noch auf dem Gerät, bleibt man angemeldet und sieht den gespeicherten Stand.
     // (Supabase löscht die gespeicherte Anmeldung nur, wenn sie wirklich ungültig ist, nicht bei fehlender Verbindung.)
     if (!sitzung) sitzung = gespeicherteSitzung();
+    sperreBeimOeffnen(sitzung?.user?.id); // App Sperre, falls auf diesem Gerät eingeschaltet
     // Wurde die App ohne Verbindung schon mit der gespeicherten Anmeldung aufgebaut, nicht noch einmal
     if (ansicht === 'app' && sitzung && sitzung.user.id === angezeigtFuer) return;
     setTimeout(anzeigen, 0);
@@ -89,6 +91,7 @@ db.auth.onAuthStateChange((ereignis, neueSitzung) => {
     setTimeout(anzeigen, 0);
   } else if (ereignis === 'SIGNED_OUT') {
     allesLoeschen(); // gespeicherte Daten bleiben nicht auf dem Gerät
+    sperreAufheben();
     history.replaceState(null, '', location.pathname + location.search);
     setTimeout(anzeigen, 0);
   }
@@ -104,9 +107,16 @@ if (!navigator.onLine) {
   const gespeichert = gespeicherteSitzung();
   if (gespeichert) {
     sitzung = gespeichert;
+    sperreBeimOeffnen(gespeichert.user.id);
     setTimeout(anzeigen, 0);
   }
 }
+
+// App Sperre (siehe sperre.js): wer angemeldet ist und wie abgemeldet wird
+sperreEinrichten({
+  benutzer: () => sitzung?.user?.id ?? null,
+  abmelden: async () => (await db.auth.signOut({ scope: 'local' })).error ?? null,
+});
 
 /** Die auf dem Gerät gespeicherte Anmeldung, auch wenn sie gerade nicht erneuert werden kann */
 function gespeicherteSitzung() {

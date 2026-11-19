@@ -3,6 +3,7 @@ import { db } from '../supabase.js';
 import { h, symbol } from '../ui.js';
 import { ZEITZONE } from '../format.js';
 import { bereiche } from '../bereiche.js';
+import { sperreAktiv, sperreMoeglich, sperreEinschalten, sperreAusschalten } from '../sperre.js';
 
 // Immer deutsche Zeit, egal welche Zeitzone am Gerät eingestellt ist
 const zeitFormat = new Intl.DateTimeFormat('de-DE', {
@@ -83,11 +84,50 @@ export function startSeite(container, kontext) {
   const anzeige = uhr();
   const kacheln = bereiche.map((bereich) => kachel(bereich, kontext));
 
+  const benutzer = kontext.sitzung.user;
+  const meldung = h('p', { class: 'fuss-meldung', role: 'status' });
+
   const abmelden = h('button', { class: 'knopf', type: 'button' }, 'Abmelden');
   abmelden.addEventListener('click', async () => {
     abmelden.disabled = true;
     // Nur dieses Gerät abmelden, andere Geräte bleiben angemeldet
-    await db.auth.signOut({ scope: 'local' });
+    const { error } = await db.auth.signOut({ scope: 'local' });
+    if (error) {
+      console.warn(error);
+      abmelden.disabled = false;
+      meldung.textContent = 'Abmelden geht nur mit Verbindung zum Server.';
+    }
+  });
+
+  // App Sperre mit Face ID oder Touch ID, nur auf Geräten, die das anbieten (siehe sperre.js)
+  const sperreKnopf = h('button', { class: 'knopf', type: 'button', hidden: true });
+  const sperreBeschriften = () => {
+    sperreKnopf.textContent = sperreAktiv(benutzer.id) ? 'App Sperre ausschalten' : 'App Sperre einschalten';
+  };
+  sperreMoeglich().then((moeglich) => {
+    if (!moeglich || !kontext.aktiv()) return;
+    sperreBeschriften();
+    sperreKnopf.hidden = false;
+  });
+  sperreKnopf.addEventListener('click', async () => {
+    if (sperreAktiv(benutzer.id)) {
+      sperreAusschalten();
+      sperreBeschriften();
+      meldung.textContent = 'App Sperre ist aus.';
+      return;
+    }
+    sperreKnopf.disabled = true;
+    try {
+      await sperreEinschalten(benutzer);
+      meldung.textContent = 'App Sperre ist an. Beim Öffnen und nach einer Minute im Hintergrund fragt die App '
+        + 'nach Face ID, Touch ID oder dem Gerätecode.';
+    } catch (fehler) {
+      console.warn(fehler);
+      meldung.textContent = 'App Sperre ist nicht eingeschaltet: Face ID oder Touch ID wurde abgebrochen oder hat nicht geklappt.';
+    } finally {
+      sperreKnopf.disabled = false;
+      sperreBeschriften();
+    }
   });
 
   container.append(
@@ -95,8 +135,9 @@ export function startSeite(container, kontext) {
     anzeige.element,
     h('div', { class: 'kacheln' }, kacheln.map((k) => k.element)),
     h('footer', { class: 'fuss' },
-      h('span', {}, `Angemeldet als ${kontext.sitzung.user.email}`),
-      abmelden,
+      h('span', {}, `Angemeldet als ${benutzer.email}`),
+      h('div', { class: 'fuss-knoepfe' }, sperreKnopf, abmelden),
+      meldung,
     ),
   );
 
