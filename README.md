@@ -64,7 +64,9 @@ Diagrammfarben sind auf Farbsehschwäche geprüft, die erste Farbe ist der Akzen
 1. Alle Beträge sind ein fester Monatsplan. Jährliche Fixkosten werden durch 12 geteilt.
 2. Einkommen, Fixkosten und Sparen sind nach Betrag sortiert, die größte Position steht oben.
    Fixkosten zählen dabei mit ihrem Betrag pro Monat. Bei gleichem Betrag steht der ältere Eintrag oben.
-   Der Export hat dieselbe Reihenfolge.
+3. Sparziele sind nach Fortschritt in Prozent sortiert, das am weitesten fortgeschrittene Ziel steht oben.
+   Erreichte Ziele (100 % und mehr) stehen deshalb ganz oben.
+4. Der Export hat dieselbe Reihenfolge wie die Anzeige.
 
 ## Regeln im Meilenstand
 

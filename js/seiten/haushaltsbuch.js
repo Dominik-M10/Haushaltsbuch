@@ -7,7 +7,7 @@ import { fehlertext } from '../fehler.js';
 import { bearbeitbareListe } from '../liste.js';
 import { segmentBalken } from '../diagramm.js';
 import {
-  cent, fixkostenMonatCent, ladeHaushalt, ladeSparziele, monatsuebersicht, speichereMiete, haushaltCsv,
+  cent, fixkostenMonatCent, ladeHaushalt, ladeSparziele, monatsuebersicht, speichereMiete, haushaltCsv, sparzielFortschritt,
 } from '../daten/haushalt.js';
 import { exportKarte } from '../export.js';
 import { speichereZeile, loescheZeile } from '../daten/tabellen.js';
@@ -256,7 +256,7 @@ export function haushaltsbuchSeite(container, kontext) {
         { name: 'bisher_gespart', label: 'Bisher gespart', typ: 'euro', pflicht: true, standard: 0 },
       ],
       zeile: (e) => {
-        const anteil = cent(e.bisher_gespart) / cent(e.zielbetrag);
+        const anteil = sparzielFortschritt(e);
         const fehlt = cent(e.zielbetrag) - cent(e.bisher_gespart);
         return {
           titel: e.name,

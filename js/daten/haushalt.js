@@ -15,9 +15,14 @@ export function fixkostenMonatCent(zeile) {
   return zeile.intervall === 'jaehrlich' ? Math.round(betrag / 12) : betrag;
 }
 
-/** Sortiert absteigend nach Betrag in Cent. Bei gleichem Betrag bleibt die Reihenfolge der Anlage. */
-export function nachBetrag(liste, betragCent) {
-  return [...liste].sort((a, b) => betragCent(b) - betragCent(a));
+/** Sortiert absteigend nach wert(eintrag). Bei gleichem Wert bleibt die Reihenfolge der Anlage. */
+export function absteigend(liste, wert) {
+  return [...liste].sort((a, b) => wert(b) - wert(a));
+}
+
+/** Fortschritt eines Sparziels als Anteil, 1 heißt 100 % (der Zielbetrag ist laut Datenbank immer größer als 0) */
+export function sparzielFortschritt(ziel) {
+  return cent(ziel.bisher_gespart) / cent(ziel.zielbetrag);
 }
 
 export async function ladeHaushalt() {
@@ -29,9 +34,9 @@ export async function ladeHaushalt() {
   ]);
   // Größte Position oben, Fixkosten nach ihrem Betrag pro Monat
   return {
-    einkommen: nachBetrag(einkommen, (z) => cent(z.betrag)),
-    fixkosten: nachBetrag(fixkosten, fixkostenMonatCent),
-    sparen: nachBetrag(sparen, (z) => cent(z.betrag)),
+    einkommen: absteigend(einkommen, (z) => cent(z.betrag)),
+    fixkosten: absteigend(fixkosten, fixkostenMonatCent),
+    sparen: absteigend(sparen, (z) => cent(z.betrag)),
     miete,
   };
 }
@@ -60,8 +65,10 @@ export async function kurzinfoHaushalt() {
   };
 }
 
+/** Sparziele mit dem größten Fortschritt oben */
 export async function ladeSparziele() {
-  return abfrage(db.from('sparziele').select('*').order('erstellt_am'));
+  const ziele = await abfrage(db.from('sparziele').select('*').order('erstellt_am'));
+  return absteigend(ziele, sparzielFortschritt);
 }
 
 /** Miete: genau eine Zeile pro Benutzer, daher anlegen oder überschreiben */
