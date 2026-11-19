@@ -9,12 +9,14 @@ import { fehlertext } from './fehler.js';
  *   titel, eintraege, felder (siehe eingabe.js), leerText, neuText,
  *   kopfWert:   optionaler Text rechts neben dem Titel, zum Beispiel die Summe
  *   zeile(e):   { titel, wert, zusatz, unten } für die Anzeige eines Eintrags (unten: optionales Element)
- *   pruefen(werte): optional, wirft einen Fehler mit Text, wenn die Werte nicht zusammenpassen
+ *   pruefen(werte, eingaben): optional, wirft einen Fehler mit Text, wenn die Werte nicht zusammenpassen
+ *               (eingaben: Eingabefelder nach Feldname, zum Beispiel für den Fokus im Eingabefehler)
  *   speichern(werte, eintrag oder null): async, legt an oder ändert
  *   loeschen(eintrag): async
  *   loeschFrage(eintrag): Text für die Sicherheitsabfrage
  *   klasse: zusätzliche CSS Klasse für die Karte
  *   oben: optionales Element zwischen Titel und Liste, zum Beispiel ein Diagramm
+ *   unten: optionales Element unter der Liste, zum Beispiel Summen
  */
 export function bearbeitbareListe(o) {
   let offen = null; // id des Eintrags im Bearbeitungsmodus oder 'neu'
@@ -33,6 +35,7 @@ export function bearbeitbareListe(o) {
     ),
     o.oben ?? null,
     liste,
+    o.unten ?? null,
     neuKnopf,
   );
 
@@ -85,7 +88,7 @@ export function bearbeitbareListe(o) {
       const werte = {};
       try {
         o.felder.forEach((def, i) => { werte[def.name] = felder[i].lesen(); });
-        o.pruefen?.(werte);
+        o.pruefen?.(werte, Object.fromEntries(o.felder.map((def, i) => [def.name, felder[i].eingabe])));
       } catch (fehler) {
         zeigen(fehlertext(fehler));
         fehler.feld?.focus();

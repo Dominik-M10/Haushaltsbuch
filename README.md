@@ -26,7 +26,7 @@ Alle Tabellen haben Row Level Security. Jeder angemeldete Benutzer sieht und än
 | `einkommen` | Bezeichnung, Betrag, Intervall (monatlich oder jährlich) |
 | `fixkosten` | Bezeichnung, Betrag, Intervall (monatlich oder jährlich) |
 | `sparen` | Bezeichnung, Betrag, Intervall (monatlich oder jährlich) |
-| `miete` | Gesamtmiete und mein Anteil in Euro, eine Zeile pro Benutzer |
+| `mietpositionen` | Positionen der Miete (zum Beispiel Miete, Strom) mit Gesamtbetrag und meinem Anteil, beides pro Monat |
 | `sparziele` | Name, Zielbetrag, bisher gespart |
 | `programme` | Meilen und Hotelprogramme mit Zuordnung zu Amex, Revolut, Payback und Transferverhältnissen |
 | `meilenstaende` | Zwischenstände je Programm (Datum, Stand, Notiz) |
@@ -69,7 +69,12 @@ Diagrammfarben sind auf Farbsehschwäche geprüft, die erste Farbe ist der Akzen
    Jährliche Beträge zählen dabei mit ihrem Betrag pro Monat. Bei gleichem Betrag steht der ältere Eintrag oben.
 3. Sparziele sind nach Fortschritt in Prozent sortiert, das am weitesten fortgeschrittene Ziel steht oben.
    Erreichte Ziele (100 % und mehr) stehen deshalb ganz oben.
-4. Der Export hat dieselbe Reihenfolge wie die Anzeige.
+4. Die Miete besteht aus einzelnen Positionen, zum Beispiel Miete, Strom und Internet. Jede Position hat einen
+   Gesamtbetrag und meinen Anteil, beides monatlich. Mein Anteil darf nicht höher sein als der Gesamtbetrag.
+   Die Positionen sind nach meinem Anteil sortiert, die größte steht oben. Unter der Liste stehen die Summen
+   (Gesamt, mein Anteil, Anteil am Einkommen). In Monatsübersicht und Verteilung zählt die Summe meiner Anteile.
+   Die frühere einzelne Miete wurde am 19.11.2026 als Position „Miete“ übernommen.
+5. Der Export hat dieselbe Reihenfolge wie die Anzeige.
 
 ## Regeln im Meilenstand
 
@@ -96,6 +101,7 @@ Diagrammfarben sind auf Farbsehschwäche geprüft, die erste Farbe ist der Akzen
 ## Export
 
 Haushaltsbuch und Meilenstand haben jeweils unten eine Karte „Export“ (beim Meilenstand im Reiter Stände).
+Im Haushaltsbuch steht bei den Mietpositionen mein Anteil unter Betrag, der Gesamtbetrag in einer eigenen Spalte.
 Die CSV Dateien sind für Excel und Numbers mit deutschen Einstellungen gemacht: Semikolon als Trennzeichen,
 Komma bei Beträgen, Datum als TT.MM.JJJJ. Texte, die mit = + - oder @ beginnen, bekommen ein ' davor,
 damit Tabellenprogramme sie nicht als Formel ausführen.

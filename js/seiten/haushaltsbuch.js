@@ -7,7 +7,7 @@ import { fehlertext } from '../fehler.js';
 import { bearbeitbareListe } from '../liste.js';
 import { segmentBalken } from '../diagramm.js';
 import {
-  cent, monatsbetragCent, ladeHaushalt, ladeSparziele, monatsuebersicht, speichereMiete, haushaltCsv, sparzielFortschritt,
+  cent, monatsbetragCent, ladeHaushalt, ladeSparziele, monatsuebersicht, haushaltCsv, sparzielFortschritt, summeCent,
 } from '../daten/haushalt.js';
 import { exportKarte } from '../export.js';
 import { speichereZeile, loescheZeile } from '../daten/tabellen.js';
@@ -81,83 +81,9 @@ function verteilungKarte(u) {
   );
 }
 
-function mieteKarte(miete, u, speichern) {
-  const karte = h('section', { class: 'karte bereich' });
-  let bearbeiten = false;
-
-  function zeichnen() {
-    const kopf = h('div', { class: 'bereich-kopf' },
-      h('h2', {}, 'Miete'),
-      miete ? h('span', { class: 'bereich-summe' }, euro(miete.mein_anteil)) : null,
-    );
-
-    if (bearbeiten) {
-      const gesamt = feld({ name: 'gesamtmiete', label: 'Gesamtmiete', typ: 'euro', pflicht: true }, miete?.gesamtmiete);
-      const anteil = feld({ name: 'mein_anteil', label: 'Mein Anteil', typ: 'euro', pflicht: true }, miete?.mein_anteil);
-      const meldung = h('p', { class: 'fehlermeldung', role: 'alert', hidden: true });
-      const sichern = h('button', { class: 'knopf primaer', type: 'submit' }, 'Speichern');
-      const abbrechen = h('button', { class: 'knopf', type: 'button' }, 'Abbrechen');
-      const form = h('form', { class: 'formular zeilen-formular', novalidate: true },
-        gesamt.element, anteil.element, meldung, h('div', { class: 'knopfreihe' }, sichern, abbrechen));
-
-      abbrechen.addEventListener('click', () => { bearbeiten = false; zeichnen(); });
-      form.addEventListener('submit', async (ereignis) => {
-        ereignis.preventDefault();
-        meldung.hidden = true;
-        try {
-          const werte = { gesamtmiete: gesamt.lesen(), mein_anteil: anteil.lesen() };
-          if (werte.mein_anteil > werte.gesamtmiete) {
-            throw new Eingabefehler('Dein Anteil kann nicht höher sein als die Gesamtmiete.', anteil.eingabe);
-          }
-          sichern.disabled = true;
-          abbrechen.disabled = true;
-          await speichern(werte);
-        } catch (fehler) {
-          if (!(fehler instanceof Eingabefehler)) console.error(fehler);
-          meldung.textContent = fehlertext(fehler);
-          meldung.hidden = false;
-          fehler.feld?.focus();
-          sichern.disabled = false;
-          abbrechen.disabled = false;
-        }
-      });
-
-      karte.replaceChildren(kopf, form);
-      gesamt.eingabe.focus();
-      return;
-    }
-
-    const knopf = h('button', { class: 'knopf', type: 'button' }, miete ? 'Bearbeiten' : '+ Miete eintragen');
-    knopf.addEventListener('click', () => { bearbeiten = true; zeichnen(); });
-
-    if (!miete) {
-      karte.replaceChildren(kopf, h('p', { class: 'leise' }, 'Noch keine Miete erfasst.'), knopf);
-      return;
-    }
-
-    const anteilAmEinkommen = u.einkommen > 0
-      ? prozentGenau(cent(miete.mein_anteil) / u.einkommen)
-      : 'kein Einkommen erfasst';
-
-    karte.replaceChildren(
-      kopf,
-      h('dl', { class: 'werte' },
-        h('div', {}, h('dt', {}, 'Gesamtmiete'), h('dd', {}, euro(miete.gesamtmiete))),
-        h('div', {}, h('dt', {}, 'Mein Anteil'), h('dd', {}, euro(miete.mein_anteil))),
-        h('div', {}, h('dt', {}, 'Anteil am Einkommen'), h('dd', {}, anteilAmEinkommen)),
-      ),
-      knopf,
-    );
-  }
-
-  zeichnen();
-  return karte;
-}
-
 export function haushaltsbuchSeite(container, kontext) {
   const inhalt = h('div', { class: 'raster' }, h('p', { class: 'laden' }, 'Wird geladen …'));
   container.append(seitenKopf('Haushaltsbuch'), inhalt);
-  const userId = kontext.sitzung.user.id;
 
   // Laufen mehrere Ladevorgänge gleichzeitig, zählt nur der zuletzt gestartete.
   // Sonst könnte eine spät eintreffende ältere Antwort einen neueren Stand überschreiben.
@@ -235,7 +161,39 @@ export function haushaltsbuchSeite(container, kontext) {
       neuText: 'Sparbetrag hinzufügen',
     });
 
-    const miete = mieteKarte(d.miete, u, (werte) => aendern(() => speichereMiete(userId, werte)));
+    // Miete: einzelne Positionen (zum Beispiel Miete, Strom) mit Gesamtbetrag und meinem Anteil.
+    // Oben rechts und in den Summen unter der Liste steht, was alle Positionen zusammen ergeben.
+    const miete = einfacheListe('mietpositionen', 'Miete', d.miete, {
+      kopfWert: euroAusCent(u.miete),
+      leerText: 'Noch keine Miete erfasst.',
+      neuText: 'Position hinzufügen',
+      felder: [
+        { name: 'bezeichnung', label: 'Bezeichnung', typ: 'text', pflicht: true },
+        { name: 'gesamtbetrag', label: 'Gesamtbetrag', typ: 'euro', pflicht: true },
+        {
+          name: 'mein_anteil', label: 'Mein Anteil', typ: 'euro', pflicht: true,
+          hinweis: 'Zahlst du die Position allein, trägst du denselben Betrag ein.',
+        },
+      ],
+      pruefen: (werte, eingaben) => {
+        if (werte.mein_anteil > werte.gesamtbetrag) {
+          throw new Eingabefehler('Dein Anteil kann nicht höher sein als der Gesamtbetrag.', eingaben.mein_anteil);
+        }
+      },
+      zeile: (e) => ({
+        titel: e.bezeichnung,
+        zusatz: `Gesamt ${euro(e.gesamtbetrag)}`,
+        wert: euro(e.mein_anteil),
+      }),
+      unten: d.miete.length
+        ? h('dl', { class: 'werte summen' },
+            h('div', {}, h('dt', {}, 'Gesamt'), h('dd', {}, euroAusCent(summeCent(d.miete, (e) => cent(e.gesamtbetrag))))),
+            h('div', {}, h('dt', {}, 'Mein Anteil'), h('dd', {}, euroAusCent(u.miete))),
+            h('div', {}, h('dt', {}, 'Anteil am Einkommen'), h('dd', {},
+              u.einkommen > 0 ? prozentGenau(u.miete / u.einkommen) : 'kein Einkommen erfasst')),
+          )
+        : null,
+    });
 
     const sparziele = einfacheListe('sparziele', 'Sparziele', d.sparziele, {
       klasse: 'breit',

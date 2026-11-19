@@ -692,6 +692,12 @@ textarea.eingabe { resize: vertical; }
 
 .werte dt { color: var(--text-leise); }
 
+/* Summen unter einer Liste (Miete): kräftige Linie darüber wie unter einer Rechnung */
+.werte.summen {
+  padding-top: 12px;
+  border-top: 2px solid var(--text);
+}
+
 .werte dd {
   margin: 0;
   font-weight: 600;

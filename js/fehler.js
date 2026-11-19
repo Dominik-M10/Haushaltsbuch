@@ -11,8 +11,8 @@ export function fehlertext(fehler) {
   }
   if (fehler?.code === '23514') {
     // Prüfregel in der Datenbank verletzt
-    if (text.includes('anteil_nicht_hoeher_als_gesamtmiete')) {
-      return 'Dein Anteil kann nicht höher sein als die Gesamtmiete.';
+    if (text.includes('mietpositionen_anteil_nicht_hoeher')) {
+      return 'Dein Anteil kann nicht höher sein als der Gesamtbetrag.';
     }
     return 'Ein Wert ist nicht zulässig. Bitte die Eingaben prüfen.';
   }
