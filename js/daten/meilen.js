@@ -12,7 +12,7 @@ export async function ladeMeilenDaten() {
   const [programme, staende, ziele] = await mitZwischenspeicher('meilen', () => Promise.all([
     abfrage(db.from('programme').select('*').order('name')),
     abfrage(db.from('meilenstaende').select('*').order('datum').order('erstellt_am')),
-    abfrage(db.from('meilenziele').select('*')),
+    abfrage(db.from('meilenziele').select('*').order('erstellt_am')),
   ]));
   return { programme, staende, ziele };
 }
@@ -23,12 +23,8 @@ export const speichereStand = (werte, id) => speichereZeile('meilenstaende', wer
 export const loescheStand = (id) => loescheZeile('meilenstaende', id);
 export const loescheZiel = (id) => loescheZeile('meilenziele', id);
 
-/** Legt das Ziel eines Programms an oder ändert es (höchstens ein Ziel pro Programm) */
-export function speichereZiel(programmId, zielstand, zielId) {
-  return zielId
-    ? speichereZeile('meilenziele', { zielstand }, zielId)
-    : speichereZeile('meilenziele', { programm_id: programmId, zielstand });
-}
+/** Legt ein Ziel an (ohne id) oder ändert es. Ein Programm kann mehrere Ziele haben. */
+export const speichereZiel = (werte, id) => speichereZeile('meilenziele', werte, id);
 
 /** Der zuletzt angelegte oder geänderte Zwischenstand, mit Programmname */
 export async function ladeLetztenStand() {

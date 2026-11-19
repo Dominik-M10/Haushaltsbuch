@@ -2,7 +2,7 @@
 //   #/meilenstand              Stände aller Programme, Stand erfassen
 //   #/meilenstand/umrechner    Umrechner
 //   #/meilenstand/programme    Tabelle aller Programme, Programm anlegen
-//   #/meilenstand/p/<id>       ein Programm: Stand, Ziel, Verlauf mit Diagramm, Zuordnung
+//   #/meilenstand/p/<id>       ein Programm: Stand, Ziele, Verlauf mit Diagramm, Zuordnung
 import { h, seitenKopf, fortschrittsbalken } from '../ui.js';
 import { datum, zahl, prozent } from '../format.js';
 import { feld, Eingabefehler, leseGanzzahl } from '../eingabe.js';
@@ -21,6 +21,28 @@ import {
 const TYP_MEHRZAHL = { Airline: 'Airlines', Hotel: 'Hotels', Bonusprogramm: 'Bonusprogramme' };
 const QUELLE_KURZ = { amex: 'Amex', revolut: 'Revolut', payback: 'Payback' };
 const nachName = (a, b) => a.name.localeCompare(b.name, 'de');
+
+// Meilenziele: Pflicht sind nur die benötigten Meilen oder Punkte, Strecke und Art sind freiwillig
+const ZIEL_ART = { one_way: 'One way', hin_und_zurueck: 'Hin und zurück' };
+
+/** "Frankfurt nach New York", "Nach New York", "Ab Frankfurt" oder "Ziel" ohne Strecke */
+function zielTitel(ziel) {
+  if (ziel.von && ziel.nach) return `${ziel.von} nach ${ziel.nach}`;
+  if (ziel.nach) return `Nach ${ziel.nach}`;
+  if (ziel.von) return `Ab ${ziel.von}`;
+  return 'Ziel';
+}
+
+/** Strecke und Art zusammen, zum Beispiel "Frankfurt nach New York, Hin und zurück" (leer ohne beides) */
+function zielBeschreibung(ziel) {
+  const strecke = ziel.von || ziel.nach ? zielTitel(ziel) : '';
+  return [strecke, ZIEL_ART[ziel.art]].filter(Boolean).join(', ');
+}
+
+/** Ziele eines Programms, das mit den wenigsten benötigten Meilen zuerst (also das am nächsten liegende) */
+function zieleVon(daten, programmId) {
+  return daten.ziele.filter((z) => z.programm_id === programmId).sort((a, b) => a.zielstand - b.zielstand);
+}
 
 function differenzText(differenz) {
   if (differenz == null) return 'erster Eintrag';
@@ -149,11 +171,12 @@ function reiter(aktiv) {
 function zielZeile(programm, stand, ziel) {
   const e = einheit(programm.typ);
   const fehlt = ziel.zielstand - stand;
+  const beschreibung = zielBeschreibung(ziel);
+  const anfang = beschreibung ? `${beschreibung} · ${zahl(ziel.zielstand)}` : `Ziel ${zahl(ziel.zielstand)}`;
+  // Text über dem Balken, damit bei mehreren Zielen klar ist, welcher Balken zu welchem Ziel gehört
   return h('span', { class: 'zeile-unten' },
-    fortschrittsbalken(stand / ziel.zielstand, `Ziel ${programm.name}`),
-    h('span', { class: 'zeile-zusatz' }, fehlt > 0
-      ? `Ziel ${zahl(ziel.zielstand)} · noch ${zahl(fehlt)} ${e}`
-      : `Ziel ${zahl(ziel.zielstand)} erreicht`),
+    h('span', { class: 'zeile-zusatz' }, fehlt > 0 ? `${anfang} · noch ${zahl(fehlt)} ${e}` : `${anfang} erreicht`),
+    fortschrittsbalken(stand / ziel.zielstand, `Ziel ${programm.name}${beschreibung ? `, ${beschreibung}` : ''}`),
   );
 }
 
@@ -201,11 +224,11 @@ function staendeKarte(daten, aendern) {
   const zeilen = daten.programme
     .map((p) => {
       const v = verlauf(daten.staende, p.id);
-      return { p, letzter: v.at(-1), ziel: daten.ziele.find((z) => z.programm_id === p.id) };
+      return { p, letzter: v.at(-1), ziele: zieleVon(daten, p.id) };
     })
-    .filter((z) => z.letzter || z.ziel);
+    .filter((z) => z.letzter || z.ziele.length);
 
-  const zeile = ({ p, letzter, ziel }) => h('li', {},
+  const zeile = ({ p, letzter, ziele }) => h('li', {},
     h('a', { class: 'zeile', href: `#/meilenstand/p/${p.id}` },
       h('span', { class: 'zeile-text' },
         h('span', { class: 'zeile-titel' }, p.name),
@@ -214,7 +237,7 @@ function staendeKarte(daten, aendern) {
           : 'Noch kein Stand erfasst'),
       ),
       h('span', { class: 'zeile-wert' }, letzter ? `${zahl(letzter.stand)} ${einheit(p.typ)}` : ''),
-      ziel ? zielZeile(p, letzter?.stand ?? 0, ziel) : null,
+      ziele.map((ziel) => zielZeile(p, letzter?.stand ?? 0, ziel)),
     ),
   );
 
@@ -595,7 +618,7 @@ function programmFormular({ programm, speichern, abbrechen, loeschen }) {
     absenden: () => speichern(werteLesen()),
     abbrechen,
     loeschen,
-    loeschFrage: `„${p.name}“ mit allen Zwischenständen und dem Ziel löschen?`,
+    loeschFrage: `„${p.name}“ mit allen Zwischenständen und Zielen löschen?`,
     loeschText: 'Programm löschen',
   });
 }
@@ -624,13 +647,13 @@ function programmSeite(container, kontext, id) {
       await laden();
     };
     const v = verlauf(daten.staende, p.id);
-    const ziel = daten.ziele.find((z) => z.programm_id === p.id);
+    const ziele = zieleVon(daten, p.id);
 
     inhalt.replaceChildren(
       seitenKopf(p.name, { ...zurueckZumMeilenstand, untertitel: p.typ }),
       h('div', { class: 'raster' },
         standKarte(p, v),
-        zielKarte(p, v, ziel, aendern),
+        zieleKarte(p, v, ziele, aendern),
         verlaufKarte(p, v, aendern),
         zuordnungKarte(p, daten.programme, aendern),
       ),
@@ -654,52 +677,46 @@ function standKarte(p, v) {
   );
 }
 
-function zielKarte(p, v, ziel, aendern) {
+/** Ziele eines Programms: benötigte Meilen (Pflicht), bei Airlines dazu freiwillig Von, Nach und Art */
+function zieleKarte(p, v, ziele, aendern) {
   const e = einheit(p.typ);
   const stand = v.at(-1)?.stand ?? 0;
-  const karte = h('section', { class: 'karte bereich' });
-  let bearbeiten = false;
+  const felder = [
+    { name: 'zielstand', label: `Benötigte ${e}`, typ: 'ganzzahl', pflicht: true, groesserNull: true },
+    ...(p.typ === 'Airline' ? [
+      { name: 'von', label: 'Von (optional)', typ: 'text' },
+      { name: 'nach', label: 'Nach (optional)', typ: 'text' },
+      {
+        name: 'art', label: 'Art (optional)', typ: 'auswahl', standard: '',
+        optionen: [['', 'keine Angabe'], ['one_way', ZIEL_ART.one_way], ['hin_und_zurueck', ZIEL_ART.hin_und_zurueck]],
+      },
+    ] : []),
+  ];
 
-  function zeichnen() {
-    const kopf = h('div', { class: 'bereich-kopf' }, h('h2', {}, 'Ziel'));
-
-    if (bearbeiten) {
-      const fZiel = feld({ name: 'zielstand', label: `Zielstand in ${e}`, typ: 'ganzzahl', pflicht: true, groesserNull: true }, ziel?.zielstand);
-      karte.replaceChildren(kopf, formular({
-        felder: [fZiel.element],
-        absenden: () => aendern(() => speichereZiel(p.id, fZiel.lesen(), ziel?.id)),
-        abbrechen: () => { bearbeiten = false; zeichnen(); },
-        loeschen: ziel ? () => aendern(() => loescheZiel(ziel.id)) : null,
-        loeschFrage: 'Ziel wirklich löschen?',
-        loeschText: 'Ziel löschen',
-      }));
-      fZiel.eingabe.focus();
-      return;
-    }
-
-    const knopf = h('button', { class: 'knopf', type: 'button' }, ziel ? 'Bearbeiten' : '+ Ziel festlegen');
-    knopf.addEventListener('click', () => { bearbeiten = true; zeichnen(); });
-
-    if (!ziel) {
-      karte.replaceChildren(kopf, h('p', { class: 'leise' }, 'Noch kein Ziel festgelegt.'), knopf);
-      return;
-    }
-
-    const fehlt = ziel.zielstand - stand;
-    karte.replaceChildren(
-      kopf,
-      h('dl', { class: 'werte' },
-        h('div', {}, h('dt', {}, 'Zielstand'), h('dd', {}, `${zahl(ziel.zielstand)} ${e}`)),
-        h('div', {}, h('dt', {}, 'Erreicht'), h('dd', {}, prozent(stand / ziel.zielstand))),
-      ),
-      fortschrittsbalken(stand / ziel.zielstand, `Ziel ${p.name}`),
-      h('p', { class: fehlt > 0 ? null : 'erfolgstext' }, fehlt > 0 ? `Noch ${zahl(fehlt)} ${e} bis zum Ziel` : 'Ziel erreicht'),
-      knopf,
-    );
-  }
-
-  zeichnen();
-  return karte;
+  return bearbeitbareListe({
+    titel: 'Ziele',
+    eintraege: ziele,
+    felder,
+    leerText: 'Noch kein Ziel festgelegt.',
+    neuText: 'Ziel hinzufügen',
+    zeile: (ziel) => {
+      const anteil = stand / ziel.zielstand;
+      const fehlt = ziel.zielstand - stand;
+      return {
+        titel: zielTitel(ziel),
+        zusatz: [ZIEL_ART[ziel.art], fehlt > 0 ? `noch ${zahl(fehlt)} ${e}` : 'erreicht', prozent(anteil)]
+          .filter(Boolean).join(' · '),
+        wert: `${zahl(ziel.zielstand)} ${e}`,
+        unten: fortschrittsbalken(anteil, `Ziel ${zielBeschreibung(ziel) || zahl(ziel.zielstand)}`),
+      };
+    },
+    speichern: (werte, ziel) => aendern(() => speichereZiel(
+      { ...werte, ...('art' in werte ? { art: werte.art || null } : {}), programm_id: p.id },
+      ziel?.id,
+    )),
+    loeschen: (ziel) => aendern(() => loescheZiel(ziel.id)),
+    loeschFrage: (ziel) => `Ziel „${zielBeschreibung(ziel) || `${zahl(ziel.zielstand)} ${e}`}“ wirklich löschen?`,
+  });
 }
 
 function verlaufKarte(p, v, aendern) {

@@ -33,7 +33,6 @@ export function fehlertext(fehler) {
   }
   if (fehler?.code === '23505') {
     if (text.includes('programme_name_eindeutig')) return 'Ein Programm mit diesem Namen gibt es schon.';
-    if (text.includes('meilenziele_ein_ziel_pro_programm')) return 'Für dieses Programm gibt es schon ein Ziel.';
     return 'Diesen Eintrag gibt es schon.';
   }
   if (fehler?.code === 'PGRST301' || fehler?.code === 'PGRST303' || /JWT/i.test(text)) {

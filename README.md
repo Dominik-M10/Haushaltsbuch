@@ -30,7 +30,7 @@ Alle Tabellen haben Row Level Security. Jeder angemeldete Benutzer sieht und än
 | `sparziele` | Name, Zielbetrag, bisher gespart |
 | `programme` | Meilen und Hotelprogramme mit Zuordnung zu Amex, Revolut, Payback und Transferverhältnissen |
 | `meilenstaende` | Zwischenstände je Programm (Datum, Stand, Notiz) |
-| `meilenziele` | Zielstand je Programm, höchstens eines pro Programm |
+| `meilenziele` | Ziele je Programm, mehrere möglich: benötigte Meilen oder Punkte, freiwillig Von, Nach und Art (One way oder Hin und zurück) |
 
 Transferverhältnisse sind als zwei Zahlen gespeichert (Quelle und Ziel), 5 und 4 heißt 5:4.
 Bei Miles & More über Amex ist `amex_ueber_payback` gesetzt. Die App rechnet dann in zwei Schritten:
@@ -97,6 +97,16 @@ Diagrammfarben sind auf Farbsehschwäche geprüft, die erste Farbe ist der Akzen
 8. Im Reiter Stände lässt sich innerhalb der Kategorien auch nach Stand sortieren, der höchste Stand oben.
    Programme, die nur ein Ziel und noch keinen Stand haben, stehen dann am Ende ihrer Kategorie.
    Die gewählte Sortierung merkt sich jedes Gerät für sich, ohne Wahl gilt alphabetisch.
+
+## Ziele im Meilenstand
+
+1. Ein Ziel gehört zu einem Programm, ein Programm kann mehrere Ziele haben.
+2. Pflicht sind nur die benötigten Meilen oder Punkte. Bei Airlines lassen sich zusätzlich Von, Nach und die Art
+   (One way oder Hin und zurück) angeben, bei Hotels und Bonusprogrammen nicht.
+3. Als Name dient die Strecke: „Frankfurt nach New York“, nur mit Ziel „Nach New York“, nur mit Abflugort
+   „Ab Frankfurt“, ohne Strecke „Ziel“.
+4. Der Fortschritt rechnet mit dem aktuellen Stand des Programms. Die Ziele stehen nach benötigten Meilen sortiert,
+   das kleinste oben. Im Reiter Stände erscheinen alle Ziele unter ihrem Programm.
 
 ## Export
 
