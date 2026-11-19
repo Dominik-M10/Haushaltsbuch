@@ -135,6 +135,9 @@ damit Tabellenprogramme sie nicht als Formel ausführen.
 1. Im Supabase Dashboard unter Authentication ein Benutzerkonto mit Mailadresse und Passwort anlegen.
    Die Programmliste wird dabei automatisch angelegt.
 2. In den Auth Einstellungen die Registrierung neuer Benutzer abschalten, damit sich niemand sonst ein Konto anlegen kann.
+   Konten im Dashboard anlegen funktioniert danach weiter.
+3. Passwort ändern und zurücksetzen gibt es bewusst nicht in der App. Das bleibt im Supabase Dashboard,
+   auf das nur der Inhaber des Projekts Zugriff hat.
 
 ## Lokal ausprobieren
 
