@@ -59,6 +59,13 @@ Ergänzt, weil die Vorlage sie nicht enthält (alle auf Kontrast nach WCAG gepr�
 Die Schrift Figtree liegt als Datei in `fonts/` (SIL Open Font License), es wird nichts von Google geladen.
 Diagrammfarben sind auf Farbsehschwäche geprüft, die erste Farbe ist der Akzent der Vorlage.
 
+## Regeln im Haushaltsbuch
+
+1. Alle Beträge sind ein fester Monatsplan. Jährliche Fixkosten werden durch 12 geteilt.
+2. Einkommen, Fixkosten und Sparen sind nach Betrag sortiert, die größte Position steht oben.
+   Fixkosten zählen dabei mit ihrem Betrag pro Monat. Bei gleichem Betrag steht der ältere Eintrag oben.
+   Der Export hat dieselbe Reihenfolge.
+
 ## Regeln im Meilenstand
 
 1. Verhältnisse sind immer Quelle zu Ziel: 5:4 heißt 5 Punkte ergeben 4 Meilen.

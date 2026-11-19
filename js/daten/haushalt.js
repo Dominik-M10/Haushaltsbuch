@@ -15,6 +15,11 @@ export function fixkostenMonatCent(zeile) {
   return zeile.intervall === 'jaehrlich' ? Math.round(betrag / 12) : betrag;
 }
 
+/** Sortiert absteigend nach Betrag in Cent. Bei gleichem Betrag bleibt die Reihenfolge der Anlage. */
+export function nachBetrag(liste, betragCent) {
+  return [...liste].sort((a, b) => betragCent(b) - betragCent(a));
+}
+
 export async function ladeHaushalt() {
   const [einkommen, fixkosten, sparen, miete] = await Promise.all([
     abfrage(db.from('einkommen').select('*').order('erstellt_am')),
@@ -22,7 +27,13 @@ export async function ladeHaushalt() {
     abfrage(db.from('sparen').select('*').order('erstellt_am')),
     abfrage(db.from('miete').select('*').maybeSingle()),
   ]);
-  return { einkommen, fixkosten, sparen, miete };
+  // Größte Position oben, Fixkosten nach ihrem Betrag pro Monat
+  return {
+    einkommen: nachBetrag(einkommen, (z) => cent(z.betrag)),
+    fixkosten: nachBetrag(fixkosten, fixkostenMonatCent),
+    sparen: nachBetrag(sparen, (z) => cent(z.betrag)),
+    miete,
+  };
 }
 
 /** Summen pro Monat in Cent: Einkommen, Fixkosten, Sparen, Miete (mein Anteil) und was übrig bleibt. */

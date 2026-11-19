@@ -29,14 +29,19 @@ function differenzText(differenz) {
 
 /** Lädt alle Meilendaten und ruft zeichnen(daten, neuLaden) auf. Bei Fehlern erscheint ein Hinweis mit "Erneut versuchen". */
 function ladeUndZeige(ziel, kontext, zeichnen) {
+  // Laufen mehrere Ladevorgänge gleichzeitig, zählt nur der zuletzt gestartete (siehe haushaltsbuch.js)
+  let ladeNummer = 0;
+
   async function laden() {
+    const nummer = ++ladeNummer;
+    const aktuell = () => kontext.aktiv() && nummer === ladeNummer;
     try {
       const daten = await ladeMeilenDaten();
-      if (!kontext.aktiv()) return;
+      if (!aktuell()) return;
       zeichnen(daten, laden);
     } catch (fehler) {
       console.error(fehler);
-      if (!kontext.aktiv()) return;
+      if (!aktuell()) return;
       const nochmal = h('button', { class: 'knopf', type: 'button' }, 'Erneut versuchen');
       nochmal.addEventListener('click', () => {
         ziel.replaceChildren(h('p', { class: 'laden' }, 'Wird geladen …'));

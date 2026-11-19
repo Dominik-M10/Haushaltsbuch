@@ -159,14 +159,20 @@ export function haushaltsbuchSeite(container, kontext) {
   container.append(seitenKopf('Haushaltsbuch'), inhalt);
   const userId = kontext.sitzung.user.id;
 
+  // Laufen mehrere Ladevorgänge gleichzeitig, zählt nur der zuletzt gestartete.
+  // Sonst könnte eine spät eintreffende ältere Antwort einen neueren Stand überschreiben.
+  let ladeNummer = 0;
+
   async function laden() {
+    const nummer = ++ladeNummer;
+    const aktuell = () => kontext.aktiv() && nummer === ladeNummer;
     try {
       const [haushalt, sparziele] = await Promise.all([ladeHaushalt(), ladeSparziele()]);
-      if (!kontext.aktiv()) return;
+      if (!aktuell()) return;
       zeichnen({ ...haushalt, sparziele });
     } catch (fehler) {
       console.error(fehler);
-      if (!kontext.aktiv()) return;
+      if (!aktuell()) return;
       const nochmal = h('button', { class: 'knopf', type: 'button' }, 'Erneut versuchen');
       nochmal.addEventListener('click', () => {
         inhalt.replaceChildren(h('p', { class: 'laden' }, 'Wird geladen …'));
