@@ -152,6 +152,27 @@ damit Tabellenprogramme sie nicht als Formel ausführen.
 3. Passwort ändern und zurücksetzen gibt es bewusst nicht in der App. Das bleibt im Supabase Dashboard,
    auf das nur der Inhaber des Projekts Zugriff hat.
 
+## Adresse
+
+Die App läuft unter https://meilenkasse.de. Ausgeliefert wird sie von GitHub Pages aus diesem Repository.
+
+1. Die Datei `CNAME` legt die Domain für GitHub Pages fest. Die alte Adresse
+   dominik-m10.github.io/Haushaltsbuch leitet automatisch auf meilenkasse.de weiter.
+2. Die Domain ist bei IONOS registriert. Dort stehen diese DNS Einträge:
+
+   | Typ | Hostname | Zeigt auf |
+   |---|---|---|
+   | A | @ | 185.199.108.153, 185.199.109.153, 185.199.110.153, 185.199.111.153 |
+   | AAAA | @ | 2606:50c0:8000::153, 2606:50c0:8001::153, 2606:50c0:8002::153, 2606:50c0:8003::153 |
+   | CNAME | www | dominik-m10.github.io |
+   | MX | @ | mx00.ionos.de und mx01.ionos.de (Mail bei IONOS, nicht ändern) |
+
+   Für A und AAAA nennt GitHub je vier Adressen. Pro Eintrag passt bei IONOS eine Adresse. Mindestens eine
+   muss eingetragen sein, die übrigen sind Reserve, falls eine Adresse von GitHub ausfällt.
+   Keinen Eintrag mit dem Hostnamen `*` anlegen, davor warnt GitHub.
+3. Anmeldung, gespeicherte Daten und App Sperre gehören zur Adresse. Nach einem Wechsel der Adresse muss man sich
+   auf jedem Gerät neu anmelden, die App Sperre neu einschalten und das Symbol auf dem Home Bildschirm neu anlegen.
+
 ## Lokal ausprobieren
 
 Die App muss über einen Webserver geöffnet werden. Ein Doppelklick auf `index.html` reicht nicht,
@@ -175,6 +196,7 @@ Danach im Browser `http://localhost:8080` öffnen.
 |---|---|
 | `index.html` | Einzige HTML Seite, lädt Supabase und die App |
 | `manifest.webmanifest`, `icons/` | Installation auf dem Home Bildschirm |
+| `CNAME` | Eigene Domain meilenkasse.de für GitHub Pages |
 | `css/style.css` | Gestaltung, mobil zuerst, Dunkelmodus nach Geräteeinstellung |
 | `js/config.js` | Adresse und öffentlicher Schlüssel des Supabase Projekts |
 | `js/app.js` | Anmeldestatus und Seitenwechsel über die Adresse nach `#` |
