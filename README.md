@@ -157,7 +157,8 @@ damit Tabellenprogramme sie nicht als Formel ausführen.
 Die App läuft unter https://meilenkasse.de. Ausgeliefert wird sie von GitHub Pages aus diesem Repository.
 
 1. Die Datei `CNAME` legt die Domain für GitHub Pages fest. Die alte Adresse
-   dominik-m10.github.io/Haushaltsbuch leitet automatisch auf meilenkasse.de weiter.
+   dominik-m10.github.io/Haushaltsbuch leitet automatisch auf meilenkasse.de weiter. In den Repository Settings
+   unter Pages ist „Enforce HTTPS“ eingeschaltet, dadurch landen auch http und www auf https://meilenkasse.de.
 2. Die Domain ist bei IONOS registriert. Dort stehen diese DNS Einträge:
 
    | Typ | Hostname | Zeigt auf |
