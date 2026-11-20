@@ -42,24 +42,29 @@ die Punktestände der beiden Quellen erfassen lassen. Sie sind selbst Quellen un
 
 ## Design
 
-Grundlage ist die Token Datei „Look: YNAB“: Hintergrund Creme `#fef9ed`, Karten Weiß, Schrift Navy `#1c1f58`,
-Akzent `#545bfe`, primäre Knöpfe Grün `#aee865` mit Navy Schrift, Radius 8 px (Knöpfe 6 px), Schrift Figtree.
-Alle Werte stehen als Variablen oben in `css/style.css`.
-
-Ergänzt, weil die Vorlage sie nicht enthält (alle auf Kontrast nach WCAG geprüft):
+Look „Travel und Tourism“, ausgewählt über den UI/UX Skill (Produkttyp Travel/Tourism Agency): Himmelblau als
+Hauptfarbe, Orange nur für die wichtigste Aktion, weiche Verläufe in Blau und Türkis (Aurora) im Hintergrund und
+auf dem Kopfbereich der Startseite, runde Karten mit weichem Schatten, Radius 16 px (Knöpfe und Felder 12 px),
+Schrift Figtree. Alle Werte stehen als Variablen oben in `css/style.css`.
 
 | Wert | Hell | Dunkel |
 |---|---|---|
-| Hintergrund | aus der Vorlage | `#13153d` |
-| Karten | aus der Vorlage | `#1c1f58` (Navy der Vorlage) |
-| Schrift | aus der Vorlage | `#fef9ed` (Creme der Vorlage) |
-| Gedämpfte Schrift | `#5d608c` | `#b7b6d6` |
-| Akzent | aus der Vorlage | `#8f95ff` |
-| Fehler | `#c42b3a` | `#ff8f96` |
-| Erfolg | `#147a50`, Balken Mint `#41d298` | `#41d298` |
+| Hintergrund | `#f0f9ff` | `#08192b` |
+| Karten | `#ffffff` | `#0f2a44` |
+| Schrift | `#0c4a6e` | `#e0f2fe` |
+| Gedämpfte Schrift | `#3f5c73` | `#a5c3da` |
+| Akzent (Links, Fokus, Symbole, Fortschritt) | `#0369a1` | `#38bdf8` |
+| Primärer Knopf | Orange `#f97316`, Schrift `#0c2d48` | Orange `#fb923c`, Schrift `#1a0f00` |
+| Fehler | `#b42318` | `#ff8f96` |
+| Erfolg | `#0f6b45`, Balken `#059669` | `#34d399` |
+
+Text und Bedienfarben sind auf Kontrast nach WCAG geprüft (Text 4,5:1, Rand der Eingabefelder und Symbole 3:1).
+Der Dunkelmodus folgt dem Gerät und hat eigene Farbstufen. Die Diagrammfarben (Blau, Rotorange, Grün, Violett)
+sind für Hell und Dunkel einzeln auf Farbsehschwäche und Unterscheidbarkeit geprüft, die Anteile stehen zusätzlich
+als Text in der Legende.
 
 Die Schrift Figtree liegt als Datei in `fonts/` (SIL Open Font License), es wird nichts von Google geladen.
-Diagrammfarben sind auf Farbsehschwäche geprüft, die erste Farbe ist der Akzent der Vorlage.
+Das App Symbol (`icons/`) hat dieselben Farben.
 
 ## Regeln im Haushaltsbuch
 

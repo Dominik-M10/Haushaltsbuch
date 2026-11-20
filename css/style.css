@@ -1,9 +1,10 @@
 /* =====================================================================
    Haushaltsbuch: Gestaltung
-   Design Tokens nach css Vorlage "Look: YNAB" (Farben, Schrift Figtree, Radien, Knöpfe, Eingabefelder).
-   Mobil zuerst, ab 768 px breiter. Dunkelmodus folgt dem Gerät.
-   Die dunklen Farben, Fehler und Erfolgsfarben sowie die gedämpfte Schrift sind aus der Vorlage
-   abgeleitet (dort nicht enthalten) und auf Kontrast nach WCAG geprüft.
+   Look "Travel und Tourism": Himmelblau als Hauptfarbe, Orange nur für die wichtigste Aktion, weiche Verläufe
+   in Blau und Türkis (Aurora) im Hintergrund und auf dem Kopfbereich der Startseite. Schrift Figtree.
+   Mobil zuerst, ab 768 px breiter. Dunkelmodus folgt dem Gerät und hat eigene Farbstufen.
+   Alle Text und Bedienfarben sind auf Kontrast nach WCAG geprüft (Text 4,5:1, Ränder und Symbole 3:1),
+   die Diagrammfarben zusätzlich auf Farbsehschwäche.
    ===================================================================== */
 
 /* Schrift Figtree als lokale Datei (SIL Open Font License, siehe fonts/Figtree-OFL.txt) */
@@ -30,44 +31,61 @@
 :root {
   color-scheme: light dark;
 
-  /* aus der Vorlage */
-  --bg: #fef9ed;
+  /* Flächen und Schrift */
+  --bg: #f0f9ff;
   --flaeche: #ffffff;
-  --text: #1c1f58;
-  --akzent: #545bfe;
-  --gruen: #aee865;
-  --mint: #41d298;
-  --knopf-bg: #aee865;
-  --knopf-text: #1c1f58;
-  --knopf2-text: #1c1f58;
-  --knopf2-rand: #1c1f58;
-  --rand-eingabe: #1c1f58;
+  --flaeche-2: #e4f2fa;
+  --text: #0c4a6e;
+  --text-leise: #3f5c73;
 
-  /* ergänzt, passend zur Vorlage */
-  --flaeche-2: #f6f0e1;
-  --text-leise: #5d608c;
-  --rand: #e3e3eb;
-  --rand-karte: rgb(28 31 88 / 0.1);
+  /* Himmelblau: Akzent für Links, Fokus, Symbole und Fortschritt */
+  --akzent: #0369a1;
   --akzent-text: #ffffff;
-  --akzent-weich: #e5e6ff;
-  --fehler: #c42b3a;
-  --fehler-weich: #fdecee;
-  --erfolg: #147a50;
+  --akzent-weich: #e0f2fe;
+
+  /* Orange: wichtigste Aktion (primärer Knopf) */
+  --knopf-bg: #f97316;
+  --knopf-text: #0c2d48;
+  --knopf2-text: #0369a1;
+  --knopf2-rand: #0369a1;
+
+  /* Ränder */
+  --rand: #bae6fd;
+  --rand-karte: rgb(3 105 161 / 0.14);
+  --rand-eingabe: #5b7c99;
+
+  /* Rückmeldungen */
+  --fehler: #b42318;
+  --fehler-weich: #fef0ee;
+  --erfolg: #0f6b45;
   --erfolg-weich: #e3f8ee;
-  --erfolg-balken: var(--mint);
-  --schatten: none;
+  --erfolg-balken: #059669;
+
+  /* Tiefe: weicher, bläulicher Schatten */
+  --schatten: 0 1px 2px rgb(12 74 110 / 0.06), 0 6px 20px rgb(12 74 110 / 0.07);
+  --schatten-hover: 0 2px 4px rgb(12 74 110 / 0.08), 0 12px 28px rgb(12 74 110 / 0.12);
+
+  /* Aurora: Hintergrund der Seite und Kopfbereich der Startseite */
+  --aurora:
+    radial-gradient(52rem 26rem at 8% -8%, rgb(14 165 233 / 0.22), transparent 62%),
+    radial-gradient(40rem 22rem at 96% -4%, rgb(45 212 191 / 0.16), transparent 62%);
+  --hero-bg: linear-gradient(135deg, #0369a1 0%, #0c4a6e 100%);
+  --hero-glanz: radial-gradient(16rem 9rem at 100% 0%, rgb(45 212 191 / 0.28), transparent 70%);
+  --hero-text: #ffffff;
+  --hero-text-leise: #e0f2fe;
+  --symbol-bg: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
 
   /* Diagrammfarben: feste Reihenfolge, auf Farbsehschwäche geprüft, Farbe 1 ist der Akzent */
-  --serie-1: #545bfe;
-  --serie-2: #eb6834;
-  --serie-3: #1baf7a;
-  --serie-4: #eda100;
-  --text-auf-serie-4: #0b0b0b;
+  --serie-1: #0369a1;
+  --serie-2: #c2410c;
+  --serie-3: #15803d;
+  --serie-4: #7c3aed;
+  --text-auf-serie: #ffffff;
 
-  /* Radien und Abstände aus der Vorlage (Grundeinheit 4 px) */
-  --radius: 8px;
-  --radius-klein: 8px;
-  --radius-knopf: 6px;
+  /* Radien und Abstände (Grundeinheit 4 px) */
+  --radius: 16px;
+  --radius-klein: 12px;
+  --radius-knopf: 12px;
   --abstand: 16px;
   --schrift: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   --schrift-titel: "Figtree", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
@@ -75,33 +93,41 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    /* abgeleitet: Navy als Fläche, Creme als Schrift */
-    --bg: #13153d;
-    --flaeche: #1c1f58;
-    --flaeche-2: #272b6e;
-    --text: #fef9ed;
-    --text-leise: #b7b6d6;
-    --rand: #333878;
-    --rand-karte: rgb(254 249 237 / 0.08);
-    --rand-eingabe: #9a9ccc;
-    --akzent: #8f95ff;
-    --akzent-text: #13153d;
-    --akzent-weich: #30358a;
-    --knopf-bg: #aee865;
-    --knopf-text: #1c1f58;
-    --knopf2-text: #fef9ed;
-    --knopf2-rand: #fef9ed;
+    /* eigene Stufen: tiefes Nachtblau, Himmelblau als Akzent, helles Orange für die Aktion */
+    --bg: #08192b;
+    --flaeche: #0f2a44;
+    --flaeche-2: #16385a;
+    --text: #e0f2fe;
+    --text-leise: #a5c3da;
+    --akzent: #38bdf8;
+    --akzent-text: #082f49;
+    --akzent-weich: #0c3a5c;
+    --knopf-bg: #fb923c;
+    --knopf-text: #1a0f00;
+    --knopf2-text: #e0f2fe;
+    --knopf2-rand: #7dd3fc;
+    --rand: #1f4a6e;
+    --rand-karte: rgb(224 242 254 / 0.10);
+    --rand-eingabe: #6fa0c4;
     --fehler: #ff8f96;
-    --fehler-weich: #40193a;
-    --erfolg: #41d298;
-    --erfolg-weich: #14403a;
+    --fehler-weich: #3b1a2a;
+    --erfolg: #34d399;
+    --erfolg-weich: #0b3b35;
+    --erfolg-balken: #34d399;
     --schatten: none;
+    --schatten-hover: 0 8px 24px rgb(0 0 0 / 0.35);
 
-    --serie-1: #7a80ff;
-    --serie-2: #d95926;
-    --serie-3: #199e70;
-    --serie-4: #c98500;
-    --text-auf-serie-4: #ffffff;
+    --aurora:
+      radial-gradient(52rem 26rem at 8% -8%, rgb(14 165 233 / 0.20), transparent 62%),
+      radial-gradient(40rem 22rem at 96% -4%, rgb(45 212 191 / 0.10), transparent 62%);
+    --hero-bg: linear-gradient(135deg, #075985 0%, #0c2d48 100%);
+    --symbol-bg: linear-gradient(135deg, #0c3a5c 0%, #12507c 100%);
+
+    --serie-1: #0284c7;
+    --serie-2: #ea580c;
+    --serie-3: #059669;
+    --serie-4: #9f67ff;
+    --text-auf-serie: #04121f;
   }
 }
 
@@ -118,7 +144,8 @@ body {
   margin: 0;
   min-height: 100vh;
   min-height: 100dvh;
-  background: var(--bg);
+  background: var(--aurora), var(--bg);
+  background-repeat: no-repeat;
   color: var(--text);
   font-family: var(--schrift);
   font-size: 16px;
@@ -307,7 +334,7 @@ input, select, textarea, button {
   min-height: 48px;
   padding: 10px 12px;
   border: 1px solid var(--rand-eingabe);
-  border-radius: var(--radius);
+  border-radius: var(--radius-klein);
   background: var(--flaeche);
   color: var(--text);
   appearance: none;
@@ -417,9 +444,19 @@ input, select, textarea, button {
 /* ---------- Startseite: Uhr ---------- */
 
 .uhr {
+  position: relative;
+  overflow: hidden;
   text-align: center;
-  padding: 28px 16px 24px;
+  padding: 32px 16px 84px;
   margin-bottom: 20px;
+  border-radius: var(--radius);
+  color: var(--hero-text);
+  /* Glanz, gestrichelte Reiseroute und Verlauf (rein dekorativ, liegen unter dem Text) */
+  background:
+    var(--hero-glanz),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 120' preserveAspectRatio='none'%3E%3Cpath d='M-10 112 C 110 8 290 8 410 100' fill='none' stroke='white' stroke-opacity='0.35' stroke-width='2.5' stroke-linecap='round' stroke-dasharray='1 9' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") center bottom / 100% 34% no-repeat,
+    var(--hero-bg);
+  box-shadow: var(--schatten);
 }
 
 .uhr-zeit {
@@ -434,7 +471,7 @@ input, select, textarea, button {
 .uhr-datum {
   margin: 8px 0 0;
   font-size: 1.125rem;
-  color: var(--text-leise);
+  color: var(--hero-text-leise);
 }
 
 /* ---------- Startseite: Kacheln ---------- */
@@ -454,11 +491,14 @@ input, select, textarea, button {
   color: inherit;
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
-  transition: border-color 0.15s, transform 0.15s;
+  transition: border-color 0.2s, box-shadow 0.2s, transform 0.15s;
 }
 
 @media (hover: hover) {
-  .kachel:hover { border-color: var(--akzent); }
+  .kachel:hover {
+    border-color: var(--akzent);
+    box-shadow: var(--schatten-hover);
+  }
 }
 .kachel:active { transform: scale(0.99); }
 
@@ -473,8 +513,8 @@ input, select, textarea, button {
   place-items: center;
   width: 44px;
   height: 44px;
-  border-radius: var(--radius);
-  background: var(--akzent-weich);
+  border-radius: var(--radius-klein);
+  background: var(--symbol-bg);
   color: var(--akzent);
 }
 
@@ -848,15 +888,13 @@ textarea.eingabe { resize: vertical; }
   padding: 0;
   border-radius: 4px;
   background: var(--farbe);
-  color: #ffffff;
+  color: var(--text-auf-serie);
   font-size: 0.875rem;
   font-weight: 600;
   white-space: nowrap;
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
 }
-
-.segment.serie-4 { color: var(--text-auf-serie-4); }
 
 .segment-text { padding: 0 8px; }
 
@@ -915,7 +953,7 @@ textarea.eingabe { resize: vertical; }
 .fortschritt {
   display: block;
   height: 8px;
-  border-radius: 4px;
+  border-radius: 999px;
   background: var(--akzent-weich);
   overflow: hidden;
 }
@@ -923,7 +961,7 @@ textarea.eingabe { resize: vertical; }
 .fortschritt-balken {
   display: block;
   height: 100%;
-  border-radius: 4px;
+  border-radius: 999px;
   background: var(--akzent);
 }
 
@@ -965,8 +1003,8 @@ textarea.eingabe { resize: vertical; }
 
 .reiter-eintrag[aria-current="page"] {
   background: var(--flaeche);
-  color: var(--text);
-  box-shadow: 0 0 0 1px var(--rand);
+  color: var(--akzent);
+  box-shadow: 0 0 0 1px var(--rand), var(--schatten);
 }
 
 @media (min-width: 800px) {
