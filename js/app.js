@@ -12,6 +12,7 @@ import { h } from './ui.js';
 import { ZEITZONE } from './format.js';
 import { setzeBenutzer, neueAnsicht, allesLoeschen } from './zwischenspeicher.js';
 import { sperreEinrichten, sperreBeimOeffnen, sperreAufheben } from './sperre.js';
+import { seitenwechsel, animationenEinrichten } from './animation.js';
 
 // Seiten, die nach dem Login erreichbar sind: die Startseite und alle Bereiche aus bereiche.js
 const seiten = {
@@ -22,6 +23,7 @@ for (const bereich of bereiche) {
 }
 
 const container = document.getElementById('app');
+animationenEinrichten(container);
 let sitzung = null;
 let aufraeumen = null;
 let durchlauf = 0;
@@ -42,6 +44,7 @@ function anzeigen() {
   }
   const dieserDurchlauf = ++durchlauf;
   container.replaceChildren();
+  seitenwechsel(container);
   window.scrollTo(0, 0);
   setzeBenutzer(sitzung?.user?.id);
   neueAnsicht();

@@ -288,7 +288,10 @@ input, select, textarea, button {
   cursor: pointer;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
+  transition: background-color 0.18s, filter 0.18s, transform 0.12s;
 }
+
+.knopf:active:not(:disabled) { transform: scale(0.98); }
 
 @media (hover: hover) {
   .knopf:hover { background: var(--flaeche-2); }
@@ -600,10 +603,6 @@ body.gesperrt > :not(.sperre) { display: none !important; }
   overflow-wrap: anywhere;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .kachel { transition: none; }
-  .kachel:active { transform: none; }
-}
 
 /* =====================================================================
    Bereiche, Listen und Formulare (Haushaltsbuch, später Meilenstand)
@@ -999,6 +998,7 @@ textarea.eingabe { resize: vertical; }
   text-align: center;
   text-decoration: none;
   -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.2s, color 0.2s, box-shadow 0.2s;
 }
 
 .reiter-eintrag[aria-current="page"] {
@@ -1351,4 +1351,116 @@ textarea.eingabe { resize: vertical; }
 .ld-kreuz {
   stroke: var(--text-leise);
   stroke-width: 1;
+}
+
+
+/* =====================================================================
+   Bewegung (js/animation.js setzt die Klassen)
+   Nur transform, opacity und clip-path, kurze Zeiten (0,2 bis 0,7 s), langsam auslaufend.
+   Mit "Bewegung reduzieren" im Gerät erscheint alles sofort.
+   ===================================================================== */
+
+:root {
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+/* ---------- Seitenwechsel und Reiter ---------- */
+
+@keyframes ein-auf {
+  from { opacity: 0; transform: translateY(14px); }
+}
+@keyframes ein-vor {
+  from { opacity: 0; transform: translateX(28px); }
+}
+@keyframes ein-zurueck {
+  from { opacity: 0; transform: translateX(-28px); }
+}
+@keyframes pille-ein {
+  from { background-color: transparent; box-shadow: none; transform: scale(0.94); }
+}
+
+/* "backwards": vor dem Start steht das Element im Anfangszustand, danach gelten wieder die normalen Stile */
+.wechsel :is(.login-karte, .uhr, .kopf, .kopf-unterseite, .reiter, .karte, .kachel, .fuss) {
+  animation: ein-auf 0.34s var(--ease) backwards;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+
+/* Reihenfolge: Geschwister nacheinander, höchstens sechs Stufen */
+.wechsel :is(.uhr, .kopf, .kopf-unterseite, .reiter, .karte, .kachel, .fuss):nth-child(2) { --i: 1; }
+.wechsel :is(.uhr, .kopf, .kopf-unterseite, .reiter, .karte, .kachel, .fuss):nth-child(3) { --i: 2; }
+.wechsel :is(.uhr, .kopf, .kopf-unterseite, .reiter, .karte, .kachel, .fuss):nth-child(4) { --i: 3; }
+.wechsel :is(.uhr, .kopf, .kopf-unterseite, .reiter, .karte, .kachel, .fuss):nth-child(5) { --i: 4; }
+.wechsel :is(.uhr, .kopf, .kopf-unterseite, .reiter, .karte, .kachel, .fuss):nth-child(6) { --i: 5; }
+.wechsel :is(.uhr, .kopf, .kopf-unterseite, .reiter, .karte, .kachel, .fuss):nth-child(n + 7) { --i: 6; }
+
+/* Die Karten unter Kopfzeile und Reitern beginnen etwas später */
+.wechsel .raster > .karte { animation-delay: calc(var(--i, 0) * 60ms + 80ms); }
+
+/* Der aktive Reiter füllt sich kurz nach dem Wechsel */
+.wechsel .reiter-eintrag[aria-current="page"] {
+  animation: pille-ein 0.32s var(--ease) 0.06s backwards;
+}
+
+/* Wechsel zwischen Reitern: Kopf und Reiterleiste bleiben ruhig, der Inhalt schiebt von der Seite herein */
+.wechsel[data-richtung] :is(.kopf-unterseite, .reiter) { animation: none; }
+.wechsel[data-richtung] .reiter-eintrag[aria-current="page"] { animation: pille-ein 0.32s var(--ease) backwards; }
+.wechsel[data-richtung="vor"] .raster > * {
+  animation: ein-vor 0.34s var(--ease) backwards;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+.wechsel[data-richtung="zurueck"] .raster > * {
+  animation: ein-zurueck 0.34s var(--ease) backwards;
+  animation-delay: calc(var(--i, 0) * 60ms);
+}
+
+/* ---------- Beim Scrollen ---------- */
+
+/* Karten unterhalb des Bildschirmrands: erscheinen, sobald sie ins Bild kommen */
+.einblenden {
+  opacity: 0;
+  transform: translateY(18px);
+}
+.einblenden.sichtbar {
+  opacity: 1;
+  transform: none;
+  transition: opacity 0.45s var(--ease), transform 0.45s var(--ease);
+}
+.wechsel .einblenden { animation: none; }
+
+/* Fortschrittsbalken und Diagramm wachsen von links */
+.fortschritt-balken.wachsen { clip-path: inset(0 100% 0 0 round 999px); }
+.segmente.wachsen { clip-path: inset(0 100% 0 0 round 4px); }
+.wachsen.sichtbar {
+  clip-path: inset(0 0 0 0 round 999px);
+  transition: clip-path 0.7s var(--ease) 0.1s;
+}
+.segmente.wachsen.sichtbar { clip-path: inset(0 0 0 0 round 4px); }
+
+/* ---------- Dinge, die auftauchen ---------- */
+
+@keyframes auf {
+  from { opacity: 0; transform: translateY(-8px); }
+}
+@keyframes einblenden {
+  from { opacity: 0; }
+}
+
+/* Formulare in den Karten (neuer Eintrag, ändern) */
+.zeilen-formular { animation: auf 0.22s var(--ease); }
+
+/* Hinweis ohne Verbindung und Fehlermeldungen */
+.verbindung-hinweis { animation: auf 0.25s var(--ease); }
+.fehlermeldung:not([hidden]) { animation: einblenden 0.2s ease-out; }
+
+/* Sperrbildschirm */
+.sperre-inhalt { animation: einblenden 0.3s ease-out; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+  .einblenden { opacity: 1; transform: none; }
+  .wachsen { clip-path: none; }
+  .knopf:active, .kachel:active { transform: none; }
 }

@@ -66,6 +66,21 @@ als Text in der Legende.
 Die Schrift Figtree liegt als Datei in `fonts/` (SIL Open Font License), es wird nichts von Google geladen.
 Das App Symbol (`icons/`) hat dieselben Farben.
 
+## Bewegung
+
+1. Beim Öffnen einer Seite blenden Kopfzeile, Reiter und Karten nacheinander ein (0,34 Sekunden, je 60 Millisekunden
+   Versatz, höchstens sechs Stufen).
+2. Beim Wechsel zwischen den Reitern im Meilenstand schiebt der Inhalt von der Seite herein, nach rechts weiter oder
+   nach links zurück. Kopfzeile und Reiterleiste bleiben ruhig, der aktive Reiter füllt sich kurz.
+3. Karten, die beim Öffnen noch unter dem Bildschirmrand liegen, erscheinen beim Scrollen. Fortschrittsbalken und das
+   Diagramm wachsen von links, sobald sie im Bild sind.
+4. Formulare in den Karten, der Hinweis ohne Verbindung und der Sperrbildschirm blenden kurz ein. Knöpfe geben beim
+   Antippen leicht nach.
+5. Animiert werden nur `transform`, `opacity` und `clip-path`. Nach dem Einblenden gelten wieder die normalen Stile.
+6. Ist am Gerät „Bewegung reduzieren“ eingestellt, erscheint alles sofort, `js/animation.js` setzt dann keine
+   Klassen und im Stylesheet sind alle Animationen abgeschaltet.
+7. Die Stile stehen am Ende von `css/style.css`, die Klassen setzt `js/animation.js`.
+
 ## Regeln im Haushaltsbuch
 
 1. Alle Beträge sind ein fester Monatsplan. Einkommen, Fixkosten und Sparen können monatlich oder jährlich sein,
@@ -220,6 +235,7 @@ Danach im Browser `http://localhost:8080` öffnen.
 | `js/export.js` | CSV Export (Semikolon, Komma bei Beträgen, UTF-8) |
 | `js/zwischenspeicher.js` | Zuletzt geladene Daten für die Nutzung ohne Verbindung |
 | `sw.js` | Service Worker, hält die Dateien der App auf dem Gerät |
+| `js/animation.js` | Setzt die Klassen für Bewegung (Seitenwechsel, Reiter, Scrollen) |
 | `js/sperre.js` | App Sperre mit Face ID, Touch ID oder Gerätecode |
 | `vendor/supabase.js` | Lokale Kopie von supabase-js 2.119.1 (MIT Lizenz) |
 | `fonts/` | Schrift Figtree (SIL Open Font License) |
