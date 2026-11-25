@@ -70,9 +70,14 @@ Das App Symbol (`icons/`) hat dieselben Farben.
 
 1. Beim Öffnen einer Seite blenden Kopfzeile, Reiter und Karten nacheinander ein (0,34 Sekunden, je 60 Millisekunden
    Versatz, höchstens sechs Stufen).
-2. Beim Wechsel zwischen den Reitern im Meilenstand schiebt der Inhalt von der Seite herein, nach rechts weiter oder
-   nach links zurück. Kopfzeile und Reiterleiste bleiben ruhig, der aktive Reiter füllt sich kurz. Der Hinweis
-   „Wird geladen …“ bewegt sich nicht, sonst liefe die Bewegung auf ihm ab statt auf dem Inhalt danach.
+2. Beim Seitenwechsel geht der alte Inhalt sichtbar weg, während der neue kommt. Dafür hält der Browser den alten
+   Stand als Bild fest (View Transitions), der Aufbau wird dadurch nicht langsamer. Beim Reiterwechsel im
+   Meilenstand schiebt der Inhalt zur Seite, in Richtung des neuen Reiters, und der alte dorthin zurück, woher der
+   neue kommt. Kopfzeile und Reiterleiste bleiben dabei ruhig. Bei einem Wechsel in einen anderen Bereich bewegt
+   sich die ganze Seite ruhig nach oben weg und die neue kommt von unten nach. Der Hinweis „Wird geladen …“ bewegt
+   sich nicht, sonst liefe die Bewegung auf ihm ab statt auf dem Inhalt danach.
+   Die Richtung steht währenddessen als `data-wechsel` am `<html>` (`vor`, `zurueck` oder `seite`). Kennt ein
+   Browser View Transitions nicht, blendet der neue Inhalt wie bisher ein und der alte verschwindet ohne Bewegung.
 3. Karten, die beim Öffnen noch unter dem Bildschirmrand liegen, erscheinen beim Scrollen. Fortschrittsbalken und das
    Diagramm wachsen von links, sobald sie im Bild sind.
 4. Formulare in den Karten, der Hinweis ohne Verbindung und der Sperrbildschirm blenden kurz ein. Knöpfe geben beim

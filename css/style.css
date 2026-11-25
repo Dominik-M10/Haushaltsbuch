@@ -1408,6 +1408,45 @@ textarea.eingabe { resize: vertical; }
 .wechsel[data-richtung="vor"] .raster > * { --vx: 28px; }
 .wechsel[data-richtung="zurueck"] .raster > * { --vx: -28px; }
 
+/* ---------- Abgang und Ankunft beim Seitenwechsel ---------- */
+
+/* Der Browser hält den alten Stand als Bild fest, während die neue Seite aufgebaut wird (View Transitions).
+   So geht der alte Inhalt sichtbar weg, statt einfach zu verschwinden, ohne dass der Aufbau länger dauert.
+   js/animation.js setzt data-wechsel am <html>: "vor" und "zurueck" beim Reiterwechsel, sonst "seite". */
+
+/* Der alte Inhalt ist früh verblasst und schiebt danach noch weiter, sonst stehen beide
+   Stände gleichzeitig halb sichtbar übereinander und es entsteht ein Doppelbild. */
+@keyframes vt-weg-links  { 55%, to { opacity: 0; } to { transform: translateX(-28px); } }
+@keyframes vt-weg-rechts { 55%, to { opacity: 0; } to { transform: translateX(28px); } }
+@keyframes vt-weg-oben   { 55%, to { opacity: 0; } to { transform: translateY(-10px); } }
+@keyframes vt-her-rechts { from { opacity: 0; transform: translateX(28px); } 35% { opacity: 0.35; } }
+@keyframes vt-her-links  { from { opacity: 0; transform: translateX(-28px); } 35% { opacity: 0.35; } }
+@keyframes vt-her-unten  { from { opacity: 0; transform: translateY(12px); } 35% { opacity: 0.35; } }
+
+/* Beim Reiterwechsel bewegt sich nur der Inhalt. Der Name gilt nur währenddessen, sonst nichts davon. */
+:is(html[data-wechsel="vor"], html[data-wechsel="zurueck"]) .raster {
+  view-transition-name: inhalt;
+}
+
+html[data-wechsel="vor"]::view-transition-old(inhalt) { animation: vt-weg-links 0.24s var(--ease) both; }
+html[data-wechsel="vor"]::view-transition-new(inhalt) { animation: vt-her-rechts 0.3s var(--ease) both; }
+html[data-wechsel="zurueck"]::view-transition-old(inhalt) { animation: vt-weg-rechts 0.24s var(--ease) both; }
+html[data-wechsel="zurueck"]::view-transition-new(inhalt) { animation: vt-her-links 0.3s var(--ease) both; }
+
+/* Kopfzeile und Reiterleiste bleiben beim Reiterwechsel ruhig stehen */
+:is(html[data-wechsel="vor"], html[data-wechsel="zurueck"])::view-transition-old(root) {
+  animation: none;
+  opacity: 0;
+}
+:is(html[data-wechsel="vor"], html[data-wechsel="zurueck"])::view-transition-new(root) {
+  animation: none;
+  opacity: 1;
+}
+
+/* Wechsel auf eine andere Seite: die ganze Seite geht ruhig weg, die neue kommt von unten nach */
+html[data-wechsel="seite"]::view-transition-old(root) { animation: vt-weg-oben 0.18s var(--ease) both; }
+html[data-wechsel="seite"]::view-transition-new(root) { animation: vt-her-unten 0.3s var(--ease) both; }
+
 /* ---------- Beim Scrollen ---------- */
 
 /* Karten unterhalb des Bildschirmrands: erscheinen, sobald sie ins Bild kommen */
@@ -1456,6 +1495,9 @@ textarea.eingabe { resize: vertical; }
   *, *::before, *::after {
     animation: none !important;
     transition: none !important;
+  }
+  ::view-transition-group(*), ::view-transition-old(*), ::view-transition-new(*) {
+    animation: none !important;
   }
   .einblenden { opacity: 1; transform: none; }
   .wachsen { clip-path: none; }

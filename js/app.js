@@ -38,14 +38,18 @@ function routeAusAdresse() {
 }
 
 function anzeigen() {
+  const route = routeAusAdresse();
+  // Der Aufbau läuft im Rückruf, damit der alte Inhalt vorher noch sichtbar weggehen kann
+  seitenwechsel(container, route, () => aufbauen(route));
+}
+
+function aufbauen(route) {
   if (aufraeumen) {
     try { aufraeumen(); } catch (fehler) { console.error(fehler); }
     aufraeumen = null;
   }
   const dieserDurchlauf = ++durchlauf;
-  const route = routeAusAdresse();
   container.replaceChildren();
-  seitenwechsel(container, route);
   window.scrollTo(0, 0);
   setzeBenutzer(sitzung?.user?.id);
   neueAnsicht();

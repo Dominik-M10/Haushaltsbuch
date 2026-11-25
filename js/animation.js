@@ -19,6 +19,8 @@ const reduziert = () => bewegungReduziert.matches;
 
 let letzterReiter = null; // Nummer des zuletzt gezeigten Reiters im Meilenstand, sonst null
 let zeitgeber = null;
+let ersterAufbauVorbei = false; // beim allerersten Aufbau gibt es nichts, was weggehen könnte
+let laufenderUebergang = null;
 let beobachter = null; // wartet darauf, dass Karten und Balken ins Bild kommen
 
 /** 0 = Stände, 1 = Umrechner, 2 = Programme, null = keine Reiterseite. route: { name, pfad } aus js/app.js */
@@ -27,8 +29,14 @@ function reiterNummer({ name, pfad }) {
   return pfad[0] === 'umrechner' ? 1 : pfad[0] === 'programme' ? 2 : 0;
 }
 
-/** Nach jedem Aufbau einer Seite aufrufen (js/app.js), mit der Route der neuen Seite */
-export function seitenwechsel(container, route) {
+/**
+ * Baut die neue Seite auf und bewegt dabei den Wechsel (js/app.js ruft das statt des Aufbaus direkt auf).
+ * `aufbauen` ersetzt den Inhalt des Containers und muss dabei ohne Warten durchlaufen.
+ *
+ * Mit View Transitions geht der alte Inhalt sichtbar weg, während der neue kommt: beim Reiterwechsel
+ * zur Seite, sonst mit einem ruhigen Übergang. Ohne diese Unterstützung bleibt es beim Einblenden.
+ */
+export function seitenwechsel(container, route, aufbauen) {
   const zuruecksetzen = () => {
     container.classList.remove('wechsel');
     delete container.dataset.richtung;
@@ -41,14 +49,48 @@ export function seitenwechsel(container, route) {
   const reiter = reiterNummer(route);
   const vorher = letzterReiter;
   letzterReiter = reiter;
-  if (reduziert()) return;
 
-  // Zwischen zwei Reitern schiebt der Inhalt von der Seite herein, in Richtung des neuen Reiters
-  if (reiter != null && vorher != null && reiter !== vorher) {
-    container.dataset.richtung = reiter > vorher ? 'vor' : 'zurueck';
+  // Zwischen zwei Reitern: der neue Inhalt kommt aus der Richtung des neuen Reiters, der alte geht dorthin zurück
+  const richtung = reiter != null && vorher != null && reiter !== vorher
+    ? (reiter > vorher ? 'vor' : 'zurueck')
+    : null;
+
+  if (reduziert()) {
+    aufbauen();
+    return;
   }
-  container.classList.add('wechsel');
-  zeitgeber = setTimeout(zuruecksetzen, WECHSEL_DAUER_MS);
+
+  // Ohne View Transitions bleibt es beim bisherigen Einblenden: der alte Inhalt verschwindet ohne Bewegung
+  if (!document.startViewTransition || !ersterAufbauVorbei) {
+    ersterAufbauVorbei = true;
+    if (richtung) container.dataset.richtung = richtung;
+    container.classList.add('wechsel');
+    zeitgeber = setTimeout(zuruecksetzen, WECHSEL_DAUER_MS);
+    aufbauen();
+    return;
+  }
+
+  // Läuft noch ein Übergang, wird er jetzt beendet. Sonst könnte sein Aufbau erst nach dem neuen
+  // an die Reihe kommen und die gerade geladenen Daten der neuen Seite als veraltet verwerfen.
+  laufenderUebergang?.skipTransition();
+
+  // Die Richtung steht am <html>, weil die Bilder des Übergangs dort hängen, nicht am Container
+  document.documentElement.dataset.wechsel = richtung ?? 'seite';
+  const uebergang = document.startViewTransition(() => {
+    // Keine Richtung am Container: die zeigt der Übergang schon. Später eintreffende Karten blenden nur ein.
+    container.classList.add('wechsel');
+    zeitgeber = setTimeout(zuruecksetzen, WECHSEL_DAUER_MS);
+    aufbauen();
+  });
+  // Löst ein schneller zweiter Wechsel den ersten ab, lehnt der Browser dessen Zusagen ab.
+  // Das ist normal, muss aber abgefangen werden, sonst landet eine Meldung in der Konsole.
+  uebergang.ready.catch(() => {});
+  uebergang.updateCallbackDone.catch(() => {});
+  uebergang.finished.catch(() => {}).finally(() => {
+    // Nur aufräumen, wenn inzwischen kein neuer Wechsel läuft
+    if (uebergang === laufenderUebergang) delete document.documentElement.dataset.wechsel;
+  });
+  laufenderUebergang = uebergang;
 }
 
 /** Einmal beim Start aufrufen: beobachtet, was in den Container kommt */
