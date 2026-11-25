@@ -84,6 +84,7 @@
 
   /* Radien und Abstände (Grundeinheit 4 px) */
   --radius: 16px;
+  --ease: cubic-bezier(0.22, 1, 0.36, 1); /* Bewegung, langsam auslaufend */
   --radius-klein: 12px;
   --radius-knopf: 12px;
   --abstand: 16px;
@@ -1360,20 +1361,11 @@ textarea.eingabe { resize: vertical; }
    Mit "Bewegung reduzieren" im Gerät erscheint alles sofort.
    ===================================================================== */
 
-:root {
-  --ease: cubic-bezier(0.22, 1, 0.36, 1);
-}
-
 /* ---------- Seitenwechsel und Reiter ---------- */
 
-@keyframes ein-auf {
-  from { opacity: 0; transform: translateY(14px); }
-}
-@keyframes ein-vor {
-  from { opacity: 0; transform: translateX(28px); }
-}
-@keyframes ein-zurueck {
-  from { opacity: 0; transform: translateX(-28px); }
+/* Startversatz über --vx und --vy: nach oben, von der Seite oder von oben herunter */
+@keyframes ein {
+  from { opacity: 0; transform: translate(var(--vx, 0), var(--vy, 14px)); }
 }
 @keyframes pille-ein {
   from { background-color: transparent; box-shadow: none; transform: scale(0.94); }
@@ -1381,7 +1373,9 @@ textarea.eingabe { resize: vertical; }
 
 /* "backwards": vor dem Start steht das Element im Anfangszustand, danach gelten wieder die normalen Stile */
 .wechsel :is(.login-karte, .uhr, .kopf, .kopf-unterseite, .reiter, .karte, .kachel, .fuss) {
-  animation: ein-auf 0.34s var(--ease) backwards;
+  --vx: 0;
+  --vy: 14px;
+  animation: ein 0.34s var(--ease) backwards;
   animation-delay: calc(var(--i, 0) * 60ms);
 }
 
@@ -1403,15 +1397,14 @@ textarea.eingabe { resize: vertical; }
 
 /* Wechsel zwischen Reitern: Kopf und Reiterleiste bleiben ruhig, der Inhalt schiebt von der Seite herein */
 .wechsel[data-richtung] :is(.kopf-unterseite, .reiter) { animation: none; }
-.wechsel[data-richtung] .reiter-eintrag[aria-current="page"] { animation: pille-ein 0.32s var(--ease) backwards; }
-.wechsel[data-richtung="vor"] .raster > * {
-  animation: ein-vor 0.34s var(--ease) backwards;
+.wechsel[data-richtung] .reiter-eintrag[aria-current="page"] { animation-delay: 0s; }
+.wechsel[data-richtung] .raster > * {
+  --vy: 0;
+  animation: ein 0.34s var(--ease) backwards;
   animation-delay: calc(var(--i, 0) * 60ms);
 }
-.wechsel[data-richtung="zurueck"] .raster > * {
-  animation: ein-zurueck 0.34s var(--ease) backwards;
-  animation-delay: calc(var(--i, 0) * 60ms);
-}
+.wechsel[data-richtung="vor"] .raster > * { --vx: 28px; }
+.wechsel[data-richtung="zurueck"] .raster > * { --vx: -28px; }
 
 /* ---------- Beim Scrollen ---------- */
 
@@ -1427,33 +1420,35 @@ textarea.eingabe { resize: vertical; }
 }
 .wechsel .einblenden { animation: none; }
 
-/* Fortschrittsbalken und Diagramm wachsen von links */
-.fortschritt-balken.wachsen { clip-path: inset(0 100% 0 0 round 999px); }
-.segmente.wachsen { clip-path: inset(0 100% 0 0 round 4px); }
+/* Fortschrittsbalken und Diagramm wachsen von links (--r: Rundung der Ecken) */
+.wachsen { --r: 999px; clip-path: inset(0 100% 0 0 round var(--r)); }
+.segmente.wachsen { --r: 4px; }
 .wachsen.sichtbar {
-  clip-path: inset(0 0 0 0 round 999px);
+  clip-path: inset(0 0 0 0 round var(--r));
   transition: clip-path 0.7s var(--ease) 0.1s;
 }
-.segmente.wachsen.sichtbar { clip-path: inset(0 0 0 0 round 4px); }
 
 /* ---------- Dinge, die auftauchen ---------- */
 
-@keyframes auf {
-  from { opacity: 0; transform: translateY(-8px); }
-}
-@keyframes einblenden {
+@keyframes blende-ein {
   from { opacity: 0; }
 }
 
 /* Formulare in den Karten (neuer Eintrag, ändern) */
-.zeilen-formular { animation: auf 0.22s var(--ease); }
+.zeilen-formular { --vx: 0; --vy: -8px; animation: ein 0.22s var(--ease); }
 
 /* Hinweis ohne Verbindung und Fehlermeldungen */
-.verbindung-hinweis { animation: auf 0.25s var(--ease); }
-.fehlermeldung:not([hidden]) { animation: einblenden 0.2s ease-out; }
+.verbindung-hinweis { --vx: 0; --vy: -8px; animation: ein 0.25s var(--ease); }
+.fehlermeldung:not([hidden]) { animation: blende-ein 0.2s ease-out; }
 
 /* Sperrbildschirm */
-.sperre-inhalt { animation: einblenden 0.3s ease-out; }
+.sperre-inhalt { animation: blende-ein 0.3s ease-out; }
+
+/* Beim Drucken soll nichts versteckt bleiben */
+@media print {
+  .einblenden { opacity: 1; transform: none; }
+  .wachsen { clip-path: none; }
+}
 
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {

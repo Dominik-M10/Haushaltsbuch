@@ -14,25 +14,28 @@ const WECHSEL_DAUER_MS = 1500;
 const EINBLENDEN = '.karte, .kachel';
 const WACHSEN = '.fortschritt-balken, .segmente';
 
-const reduziert = () => matchMedia('(prefers-reduced-motion: reduce)').matches;
+const bewegungReduziert = matchMedia('(prefers-reduced-motion: reduce)'); // aktualisiert sich selbst
+const reduziert = () => bewegungReduziert.matches;
 
 let letzterReiter = null; // Nummer des zuletzt gezeigten Reiters im Meilenstand, sonst null
 let zeitgeber = null;
 
-/** 0 = Stände, 1 = Umrechner, 2 = Programme, null = keine Reiterseite */
-function reiterNummer() {
-  const [name, teil] = location.hash.replace(/^#\/?/, '').split('/');
-  if (name !== 'meilenstand' || teil === 'p') return null;
-  return teil === 'umrechner' ? 1 : teil === 'programme' ? 2 : 0;
+/** 0 = Stände, 1 = Umrechner, 2 = Programme, null = keine Reiterseite. route: { name, pfad } aus js/app.js */
+function reiterNummer({ name, pfad }) {
+  if (name !== 'meilenstand' || pfad[0] === 'p') return null;
+  return pfad[0] === 'umrechner' ? 1 : pfad[0] === 'programme' ? 2 : 0;
 }
 
-/** Nach jedem Aufbau einer Seite aufrufen (js/app.js) */
-export function seitenwechsel(container) {
+/** Nach jedem Aufbau einer Seite aufrufen (js/app.js), mit der Route der neuen Seite */
+export function seitenwechsel(container, route) {
+  const zuruecksetzen = () => {
+    container.classList.remove('wechsel');
+    delete container.dataset.richtung;
+  };
   clearTimeout(zeitgeber);
-  container.classList.remove('wechsel');
-  delete container.dataset.richtung;
+  zuruecksetzen();
 
-  const reiter = reiterNummer();
+  const reiter = reiterNummer(route);
   const vorher = letzterReiter;
   letzterReiter = reiter;
   if (reduziert()) return;
@@ -42,10 +45,7 @@ export function seitenwechsel(container) {
     container.dataset.richtung = reiter > vorher ? 'vor' : 'zurueck';
   }
   container.classList.add('wechsel');
-  zeitgeber = setTimeout(() => {
-    container.classList.remove('wechsel');
-    delete container.dataset.richtung;
-  }, WECHSEL_DAUER_MS);
+  zeitgeber = setTimeout(zuruecksetzen, WECHSEL_DAUER_MS);
 }
 
 /** Einmal beim Start aufrufen: beobachtet, was in den Container kommt */
@@ -54,7 +54,7 @@ export function animationenEinrichten(container) {
 
   // Balken und Diagramm sind zu Beginn abgeschnitten (clip-path). Der Browser meldet ein abgeschnittenes Element
   // nie als sichtbar, deshalb wird bei ihnen der Behälter darum beobachtet.
-  const behaelterVon = new Map();
+  const behaelterVon = new WeakMap(); // schwach, damit abgeräumte Seiten nicht hängen bleiben
 
   const beobachter = new IntersectionObserver((eintraege) => {
     for (const eintrag of eintraege) {
@@ -63,10 +63,8 @@ export function animationenEinrichten(container) {
       const el = behaelterVon.get(eintrag.target) ?? eintrag.target;
       behaelterVon.delete(eintrag.target);
       el.classList.add('sichtbar');
-      // Danach gelten wieder die normalen Stile (Hover, Antippen, Tooltips am Diagramm)
-      const fertig = () => el.classList.remove('einblenden', 'wachsen', 'sichtbar');
-      el.addEventListener('transitionend', fertig, { once: true });
-      setTimeout(fertig, 900);
+      // Nach der Bewegung (längste: 0,8 s) gelten wieder die normalen Stile (Hover, Antippen, Tooltips am Diagramm)
+      setTimeout(() => el.classList.remove('einblenden', 'wachsen', 'sichtbar'), 900);
     }
   }, { rootMargin: '0px 0px -6% 0px', threshold: 0.08 });
 
@@ -93,13 +91,4 @@ export function animationenEinrichten(container) {
       }
     }
   }).observe(container, { childList: true, subtree: true });
-
-  // Beim Drucken soll nichts versteckt bleiben
-  window.addEventListener('beforeprint', () => {
-    beobachter.disconnect();
-    behaelterVon.clear();
-    container.querySelectorAll('.einblenden, .wachsen').forEach((el) => {
-      el.classList.remove('einblenden', 'wachsen', 'sichtbar');
-    });
-  });
 }

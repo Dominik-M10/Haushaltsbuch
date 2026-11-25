@@ -43,13 +43,13 @@ function anzeigen() {
     aufraeumen = null;
   }
   const dieserDurchlauf = ++durchlauf;
+  const route = routeAusAdresse();
   container.replaceChildren();
-  seitenwechsel(container);
+  seitenwechsel(container, route);
   window.scrollTo(0, 0);
   setzeBenutzer(sitzung?.user?.id);
   neueAnsicht();
 
-  const route = routeAusAdresse();
   const kontext = {
     sitzung,
     pfad: route.pfad, // Teile der Adresse nach dem Seitennamen
