@@ -71,14 +71,16 @@ Das App Symbol (`icons/`) hat dieselben Farben.
 1. Beim Öffnen einer Seite blenden Kopfzeile, Reiter und Karten nacheinander ein (0,34 Sekunden, je 60 Millisekunden
    Versatz, höchstens sechs Stufen).
 2. Beim Wechsel zwischen den Reitern im Meilenstand schiebt der Inhalt von der Seite herein, nach rechts weiter oder
-   nach links zurück. Kopfzeile und Reiterleiste bleiben ruhig, der aktive Reiter füllt sich kurz.
+   nach links zurück. Kopfzeile und Reiterleiste bleiben ruhig, der aktive Reiter füllt sich kurz. Der Hinweis
+   „Wird geladen …“ bewegt sich nicht, sonst liefe die Bewegung auf ihm ab statt auf dem Inhalt danach.
 3. Karten, die beim Öffnen noch unter dem Bildschirmrand liegen, erscheinen beim Scrollen. Fortschrittsbalken und das
    Diagramm wachsen von links, sobald sie im Bild sind.
 4. Formulare in den Karten, der Hinweis ohne Verbindung und der Sperrbildschirm blenden kurz ein. Knöpfe geben beim
    Antippen leicht nach.
 5. Animiert werden nur `transform`, `opacity` und `clip-path`. Nach dem Einblenden gelten wieder die normalen Stile.
 6. Ist am Gerät „Bewegung reduzieren“ eingestellt, erscheint alles sofort, `js/animation.js` setzt dann keine
-   Klassen und im Stylesheet sind alle Animationen abgeschaltet.
+   Klassen und im Stylesheet sind alle Animationen abgeschaltet. Beim Drucken erscheint ebenfalls alles, auch was
+   noch auf das Scrollen wartet.
 7. Die Stile stehen am Ende von `css/style.css`, die Klassen setzt `js/animation.js`.
 
 ## Regeln im Haushaltsbuch

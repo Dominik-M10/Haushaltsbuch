@@ -19,6 +19,7 @@ const reduziert = () => bewegungReduziert.matches;
 
 let letzterReiter = null; // Nummer des zuletzt gezeigten Reiters im Meilenstand, sonst null
 let zeitgeber = null;
+let beobachter = null; // wartet darauf, dass Karten und Balken ins Bild kommen
 
 /** 0 = Stände, 1 = Umrechner, 2 = Programme, null = keine Reiterseite. route: { name, pfad } aus js/app.js */
 function reiterNummer({ name, pfad }) {
@@ -34,6 +35,8 @@ export function seitenwechsel(container, route) {
   };
   clearTimeout(zeitgeber);
   zuruecksetzen();
+  // Die Elemente der alten Seite sind weg. Ohne das bliebe jede ungesehene Karte im Beobachter liegen.
+  beobachter?.disconnect();
 
   const reiter = reiterNummer(route);
   const vorher = letzterReiter;
@@ -53,18 +56,19 @@ export function animationenEinrichten(container) {
   if (!('IntersectionObserver' in window) || !('MutationObserver' in window)) return;
 
   // Balken und Diagramm sind zu Beginn abgeschnitten (clip-path). Der Browser meldet ein abgeschnittenes Element
-  // nie als sichtbar, deshalb wird bei ihnen der Behälter darum beobachtet.
-  const behaelterVon = new WeakMap(); // schwach, damit abgeräumte Seiten nicht hängen bleiben
-
-  const beobachter = new IntersectionObserver((eintraege) => {
+  // nie als sichtbar, deshalb wird bei ihnen der Behälter darum beobachtet und darin alles Wachsende freigegeben.
+  beobachter = new IntersectionObserver((eintraege) => {
     for (const eintrag of eintraege) {
       if (!eintrag.isIntersecting) continue;
       beobachter.unobserve(eintrag.target);
-      const el = behaelterVon.get(eintrag.target) ?? eintrag.target;
-      behaelterVon.delete(eintrag.target);
-      el.classList.add('sichtbar');
-      // Nach der Bewegung (längste: 0,8 s) gelten wieder die normalen Stile (Hover, Antippen, Tooltips am Diagramm)
-      setTimeout(() => el.classList.remove('einblenden', 'wachsen', 'sichtbar'), 900);
+      // Freizugeben ist das Element selbst (wartende Karte) und alles Wachsende darin (Balken, Diagramm)
+      const ziele = [...eintrag.target.querySelectorAll('.wachsen')];
+      if (eintrag.target.matches('.einblenden')) ziele.push(eintrag.target);
+      for (const el of ziele) {
+        el.classList.add('sichtbar');
+        // Nach der Bewegung (längste: 0,8 s) gelten wieder die normalen Stile (Hover, Antippen, Tooltips am Diagramm)
+        setTimeout(() => el.classList.remove('einblenden', 'wachsen', 'sichtbar'), 900);
+      }
     }
   }, { rootMargin: '0px 0px -6% 0px', threshold: 0.08 });
 
@@ -72,9 +76,7 @@ export function animationenEinrichten(container) {
     if (reduziert() || el.classList.contains('einblenden') || el.classList.contains('wachsen')) return;
     if (el.matches(WACHSEN)) {
       el.classList.add('wachsen');
-      const behaelter = el.parentElement ?? el;
-      behaelterVon.set(behaelter, el);
-      beobachter.observe(behaelter);
+      beobachter.observe(el.parentElement ?? el);
     } else if (el.matches(EINBLENDEN) && el.getBoundingClientRect().top > innerHeight) {
       // Nur was noch unter dem Bildschirmrand liegt, erscheint erst beim Scrollen
       el.classList.add('einblenden');

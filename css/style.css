@@ -1398,11 +1398,13 @@ textarea.eingabe { resize: vertical; }
 /* Wechsel zwischen Reitern: Kopf und Reiterleiste bleiben ruhig, der Inhalt schiebt von der Seite herein */
 .wechsel[data-richtung] :is(.kopf-unterseite, .reiter) { animation: none; }
 .wechsel[data-richtung] .reiter-eintrag[aria-current="page"] { animation-delay: 0s; }
-.wechsel[data-richtung] .raster > * {
+/* Der Ladeplatzhalter bleibt ruhig, sonst liefe die Bewegung auf ihm ab statt auf dem Inhalt danach */
+.wechsel[data-richtung] .raster > *:not(.laden) {
   --vy: 0;
   animation: ein 0.34s var(--ease) backwards;
   animation-delay: calc(var(--i, 0) * 60ms);
 }
+.wechsel .laden { animation: none; }
 .wechsel[data-richtung="vor"] .raster > * { --vx: 28px; }
 .wechsel[data-richtung="zurueck"] .raster > * { --vx: -28px; }
 
