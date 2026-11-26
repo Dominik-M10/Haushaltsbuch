@@ -82,11 +82,18 @@ Das App Symbol (`icons/`) hat dieselben Farben.
    Diagramm wachsen von links, sobald sie im Bild sind.
 4. Formulare in den Karten, der Hinweis ohne Verbindung und der Sperrbildschirm blenden kurz ein. Knöpfe geben beim
    Antippen leicht nach.
-5. Animiert werden nur `transform`, `opacity` und `clip-path`. Nach dem Einblenden gelten wieder die normalen Stile.
-6. Ist am Gerät „Bewegung reduzieren“ eingestellt, erscheint alles sofort, `js/animation.js` setzt dann keine
+5. Auf der Startseite fliegt ein Flugzeug die gestrichelte Route unter dem Datum entlang, in 24 Sekunden von links
+   nach rechts, am Rand blendet es ein und aus. Die Stützstellen der Bewegung sind aus derselben Kurve gerechnet,
+   die den Strich zeichnet, und stehen in Prozent, damit sie mit der Kartenbreite mitwachsen. Weil die Route auf
+   die Kartenbreite gestreckt wird und dadurch auf breiten Bildschirmen flacher aussieht, gibt es zwei Sätze für
+   die Neigung (`flug-dreh-schmal` und `flug-dreh-breit`, umgeschaltet über `--flug-dreh` ab 768 Pixeln). Ohne
+   Animation steht das Flugzeug am höchsten Punkt der Route.
+6. Animiert werden nur `transform`, `translate`, `rotate`, `opacity` und `clip-path`, also nichts, wofür der
+   Browser die Seite neu aufteilen muss. Nach dem Einblenden gelten wieder die normalen Stile.
+7. Ist am Gerät „Bewegung reduzieren“ eingestellt, erscheint alles sofort, `js/animation.js` setzt dann keine
    Klassen und im Stylesheet sind alle Animationen abgeschaltet. Beim Drucken erscheint ebenfalls alles, auch was
    noch auf das Scrollen wartet.
-7. Die Stile stehen am Ende von `css/style.css`, die Klassen setzt `js/animation.js`.
+8. Die Stile stehen am Ende von `css/style.css`, die Klassen setzt `js/animation.js`.
 
 ## Regeln im Haushaltsbuch
 

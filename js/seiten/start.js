@@ -21,6 +21,13 @@ const datumFormat = new Intl.DateTimeFormat('de-DE', {
   year: 'numeric',
 });
 
+// Fliegt auf der gestrichelten Route unter dem Datum. Rein dekorativ, bewegt sich allein über CSS.
+function flugzeug() {
+  const flieger = symbol('flugzeug');
+  flieger.classList.add('uhr-flieger');
+  return h('span', { class: 'uhr-bahn', 'aria-hidden': 'true' }, h('span', { class: 'uhr-flug' }, flieger));
+}
+
 function uhr() {
   const zeit = h('time', { class: 'uhr-zeit' });
   const tag = h('p', { class: 'uhr-datum' });
@@ -38,7 +45,8 @@ function uhr() {
   takt();
 
   return {
-    element: h('section', { class: 'karte uhr', 'aria-label': 'Uhrzeit und Datum in Deutschland' }, zeit, tag),
+    element: h('section', { class: 'karte uhr', 'aria-label': 'Uhrzeit und Datum in Deutschland' },
+      zeit, tag, flugzeug()),
     takt,
     stoppen: () => clearTimeout(timer),
   };

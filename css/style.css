@@ -448,6 +448,11 @@ input, select, textarea, button {
 /* ---------- Startseite: Uhr ---------- */
 
 .uhr {
+  --flug-dauer: 24s;
+  --flug-groesse: 18px;
+  /* Die Route wird auf die Kartenbreite gestreckt. Je breiter die Karte, desto flacher
+     erscheint sie, darum neigt sich das Flugzeug auf breiten Bildschirmen weniger. */
+  --flug-dreh: flug-dreh-schmal;
   position: relative;
   overflow: hidden;
   text-align: center;
@@ -461,6 +466,45 @@ input, select, textarea, button {
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 120' preserveAspectRatio='none'%3E%3Cpath d='M-10 112 C 110 8 290 8 410 100' fill='none' stroke='white' stroke-opacity='0.35' stroke-width='2.5' stroke-linecap='round' stroke-dasharray='1 9' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") center bottom / 100% 34% no-repeat,
     var(--hero-bg);
   box-shadow: var(--schatten);
+}
+
+/* Flugzeug auf der Route. Die Bahn deckt genau den Bereich des Bogens ab (unten, 34 % der Kartenhöhe),
+   damit die Prozentwerte der Bewegung mitwachsen. Ohne Animation steht das Flugzeug am höchsten Punkt. */
+.uhr-bahn {
+  position: absolute;
+  inset: auto 0 0;
+  height: 34%;
+  pointer-events: none;
+  animation: flug-blende var(--flug-dauer) linear infinite;
+}
+.uhr-flug {
+  position: absolute;
+  inset: 0;
+  translate: 50% 27%;
+  animation: flug-weg var(--flug-dauer) linear infinite;
+}
+.uhr-flieger {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: var(--flug-groesse);
+  height: var(--flug-groesse);
+  /* halbe Größe nach oben links, damit die Mitte des Flugzeugs auf der Route liegt */
+  margin: calc(var(--flug-groesse) / -2) 0 0 calc(var(--flug-groesse) / -2);
+  color: rgb(255 255 255 / 0.55);
+  rotate: 90deg;
+  animation: var(--flug-dreh) var(--flug-dauer) linear infinite;
+}
+.uhr-flieger svg {
+  fill: currentColor;
+  stroke: none;
+}
+
+@media (min-width: 768px) {
+  .uhr {
+    --flug-groesse: 20px;
+    --flug-dreh: flug-dreh-breit;
+  }
 }
 
 .uhr-zeit {
@@ -1484,6 +1528,58 @@ html[data-wechsel="seite"]::view-transition-new(root) { animation: vt-her-unten 
 
 /* Sperrbildschirm */
 .sperre-inhalt { animation: blende-ein 0.3s ease-out; }
+
+/* ---------- Flugzeug auf der Route der Startseite ---------- */
+
+/* Stützstellen der Kurve M-10 112 C 110 8 290 8 410 100 (viewBox 400x120), in Prozent umgerechnet.
+   Zwischen ihnen wird gerade interpoliert; das weicht um höchstens einen halben Pixel ab. */
+@keyframes flug-weg {
+  0%   { translate: -2.5% 93.3%; }
+  10%  { translate: 6.9% 69.9%; }
+  20%  { translate: 17.1% 51.7%; }
+  30%  { translate: 27.7% 38.5%; }
+  40%  { translate: 38.8% 30.3%; }
+  50%  { translate: 50.0% 27.1%; }
+  60%  { translate: 61.2% 28.8%; }
+  70%  { translate: 72.3% 35.3%; }
+  80%  { translate: 82.9% 46.6%; }
+  90%  { translate: 93.1% 62.6%; }
+  100% { translate: 102.5% 83.3%; }
+}
+
+/* Die Nase zeigt in Flugrichtung: Tangente der Kurve, dazu 90 Grad, weil das Symbol nach oben zeigt */
+@keyframes flug-dreh-schmal {
+  0%   { rotate: 59deg; }
+  10%  { rotate: 66deg; }
+  20%  { rotate: 73deg; }
+  30%  { rotate: 79deg; }
+  40%  { rotate: 84deg; }
+  50%  { rotate: 89deg; }
+  60%  { rotate: 94deg; }
+  70%  { rotate: 100deg; }
+  80%  { rotate: 105deg; }
+  90%  { rotate: 111deg; }
+  100% { rotate: 118deg; }
+}
+@keyframes flug-dreh-breit {
+  0%   { rotate: 75deg; }
+  10%  { rotate: 79deg; }
+  20%  { rotate: 82deg; }
+  30%  { rotate: 85deg; }
+  40%  { rotate: 87deg; }
+  50%  { rotate: 90deg; }
+  60%  { rotate: 92deg; }
+  70%  { rotate: 94deg; }
+  80%  { rotate: 97deg; }
+  90%  { rotate: 100deg; }
+  100% { rotate: 103deg; }
+}
+
+/* Taucht am Rand auf und verschwindet dort wieder, dazwischen eine kurze Pause ohne Flugzeug */
+@keyframes flug-blende {
+  0%, 100% { opacity: 0; }
+  10%, 90% { opacity: 1; }
+}
 
 /* Beim Drucken soll nichts versteckt bleiben */
 @media print {
