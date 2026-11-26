@@ -491,7 +491,8 @@ input, select, textarea, button {
   height: var(--flug-groesse);
   /* halbe Größe nach oben links, damit die Mitte des Flugzeugs auf der Route liegt */
   margin: calc(var(--flug-groesse) / -2) 0 0 calc(var(--flug-groesse) / -2);
-  color: rgb(255 255 255 / 0.55);
+  /* deckend, damit die Punkte der Route nicht durch das Flugzeug scheinen */
+  color: #ffffff;
   rotate: 90deg;
   animation: var(--flug-dreh) var(--flug-dauer) linear infinite;
 }
