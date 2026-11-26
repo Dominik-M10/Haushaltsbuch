@@ -69,8 +69,6 @@
   --aurora:
     radial-gradient(52rem 26rem at 8% -8%, rgb(14 165 233 / 0.22), transparent 62%),
     radial-gradient(40rem 22rem at 96% -4%, rgb(45 212 191 / 0.16), transparent 62%);
-  --hero-bg: linear-gradient(135deg, #0369a1 0%, #0c4a6e 100%);
-  --hero-glanz: radial-gradient(16rem 9rem at 100% 0%, rgb(45 212 191 / 0.28), transparent 70%);
   --hero-text: #ffffff;
   --hero-text-leise: #e0f2fe;
   --symbol-bg: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
@@ -121,7 +119,6 @@
     --aurora:
       radial-gradient(52rem 26rem at 8% -8%, rgb(14 165 233 / 0.20), transparent 62%),
       radial-gradient(40rem 22rem at 96% -4%, rgb(45 212 191 / 0.10), transparent 62%);
-    --hero-bg: linear-gradient(135deg, #075985 0%, #0c2d48 100%);
     --symbol-bg: linear-gradient(135deg, #0c3a5c 0%, #12507c 100%);
 
     --serie-1: #0284c7;
@@ -460,12 +457,55 @@ input, select, textarea, button {
   margin-bottom: 20px;
   border-radius: var(--radius);
   color: var(--hero-text);
-  /* Glanz, gestrichelte Reiseroute und Verlauf (rein dekorativ, liegen unter dem Text) */
+  /* Sonnenschein, gestrichelte Reiseroute und Himmel (rein dekorativ, liegen unter dem Text) */
   background:
-    var(--hero-glanz),
+    radial-gradient(18rem 10rem at var(--sonne-x) var(--sonne-y), var(--sonne), transparent 70%),
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 120' preserveAspectRatio='none'%3E%3Cpath d='M-10 112 C 110 8 290 8 410 100' fill='none' stroke='white' stroke-opacity='0.35' stroke-width='2.5' stroke-linecap='round' stroke-dasharray='1 9' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") center bottom / 100% 34% no-repeat,
-    var(--hero-bg);
+    linear-gradient(170deg, var(--himmel-1) 0%, var(--himmel-2) 58%, var(--himmel-3) 100%);
   box-shadow: var(--schatten);
+  /* Der Wechsel der Tageszeit blendet über, statt zu springen */
+  transition: --himmel-1 4s linear, --himmel-2 4s linear, --himmel-3 4s linear,
+    --sonne 4s linear, --sonne-x 4s linear, --sonne-y 4s linear;
+}
+
+/* Die Karte färbt sich nach dem Sonnenstand (siehe js/himmel.js). Ohne die Angaben unten
+   bliebe es beim Tageshimmel, darum sind dessen Farben die Ausgangswerte.
+   Farben als eigene Eigenschaften angemeldet, sonst ließen sich Verläufe nicht überblenden. */
+@property --himmel-1 { syntax: "<color>"; inherits: false; initial-value: #0369a1; }
+@property --himmel-2 { syntax: "<color>"; inherits: false; initial-value: #0a5582; }
+@property --himmel-3 { syntax: "<color>"; inherits: false; initial-value: #0c4a6e; }
+@property --sonne { syntax: "<color>"; inherits: false; initial-value: rgb(45 212 191 / 0.28); }
+@property --sonne-x { syntax: "<percentage>"; inherits: false; initial-value: 100%; }
+@property --sonne-y { syntax: "<percentage>"; inherits: false; initial-value: 0%; }
+
+/* Dämmerung am Morgen: klarer und kühler als abends, die Sonne steht links */
+.uhr[data-himmel="morgen"] {
+  --himmel-1: #1b3c6b;
+  --himmel-2: #5a4472;
+  --himmel-3: #bd7168;
+  --sonne: rgb(253 186 116 / 0.42);
+  --sonne-x: 18%;
+  --sonne-y: 112%;
+}
+
+/* Abenddämmerung: dasselbe gespiegelt, die Sonne steht rechts */
+.uhr[data-himmel="abend"] {
+  --himmel-1: #16305c;
+  --himmel-2: #5a3560;
+  --himmel-3: #9e4a42;
+  --sonne: rgb(249 115 22 / 0.42);
+  --sonne-x: 84%;
+  --sonne-y: 112%;
+}
+
+/* Nacht: tiefdunkel, nur ein schwacher Schein über dem Horizont */
+.uhr[data-himmel="nacht"] {
+  --himmel-1: #0a1e3a;
+  --himmel-2: #071527;
+  --himmel-3: #050e1c;
+  --sonne: rgb(30 64 110 / 0.38);
+  --sonne-x: 50%;
+  --sonne-y: 125%;
 }
 
 /* Flugzeug auf der Route. Die Bahn deckt genau den Bereich des Bogens ab (unten, 34 % der Kartenhöhe),

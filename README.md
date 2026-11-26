@@ -66,6 +66,24 @@ als Text in der Legende.
 Die Schrift Figtree liegt als Datei in `fonts/` (SIL Open Font License), es wird nichts von Google geladen.
 Das App Symbol (`icons/`) hat dieselben Farben.
 
+### Himmel nach Tageszeit
+
+Die Karte oben auf der Startseite färbt sich nach dem echten Sonnenstand: nachts tiefdunkel, bei Dämmerung
+warm mit dem Schein der Sonne am unteren Rand (morgens links, abends rechts), tagsüber das gewohnte Blau.
+Feste Uhrzeiten wären falsch gewesen, denn Ende November ist es um 17 Uhr dunkel und Ende Juni um 21 Uhr
+noch hell.
+
+`js/himmel.js` rechnet die Höhe der Sonne über dem Horizont (Formel aus dem Astronomical Almanac, geringe
+Genauigkeit). Der Ort ist fest die Mitte Deutschlands, passend dazu, dass die App ohnehin immer deutsche Zeit
+zeigt. Über 8 Grad gilt als Tag, unter -6 Grad als Nacht, dazwischen Dämmerung, aufgeteilt danach, ob die Sonne
+gerade steigt oder fällt. Am kürzesten Tag ergibt das Morgen ab 7:40, Tag ab 9:42, Abend ab 14:52 und Nacht ab
+16:53, am längsten Tag Morgen ab 4:16, Tag ab 6:11, Abend ab 20:30 und Nacht ab 22:25.
+
+Die Uhr setzt daraus `data-himmel` auf der Karte, die Farben stehen im Stylesheet. Beim Wechsel blenden sie über
+vier Sekunden über statt zu springen; dafür sind die Farben mit `@property` angemeldet, sonst ließen sich Verläufe
+nicht überblenden. Der weiße Text ist auf allen vier Himmeln auf Kontrast geprüft, der knappste Wert liegt bei
+5,7:1.
+
 ## Bewegung
 
 1. Beim Öffnen einer Seite blenden Kopfzeile, Reiter und Karten nacheinander ein (0,34 Sekunden, je 60 Millisekunden

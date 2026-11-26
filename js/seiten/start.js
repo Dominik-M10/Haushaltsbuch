@@ -2,6 +2,7 @@
 import { db } from '../supabase.js';
 import { h, symbol } from '../ui.js';
 import { ZEITZONE } from '../format.js';
+import { tageszeit } from '../himmel.js';
 import { bereiche } from '../bereiche.js';
 import { sperreAktiv, sperreMoeglich, sperreEinschalten, sperreAusschalten } from '../sperre.js';
 
@@ -33,6 +34,9 @@ function uhr() {
   const tag = h('p', { class: 'uhr-datum' });
   let timer = null;
 
+  const karte = h('section', { class: 'karte uhr', 'aria-label': 'Uhrzeit und Datum in Deutschland' },
+    zeit, tag, flugzeug());
+
   // Aktualisiert die Anzeige und plant den nächsten Takt genau zum Beginn der nächsten Sekunde
   function takt() {
     clearTimeout(timer);
@@ -40,13 +44,16 @@ function uhr() {
     zeit.textContent = zeitFormat.format(jetzt);
     zeit.setAttribute('datetime', jetzt.toISOString());
     tag.textContent = datumFormat.format(jetzt);
+    // Färbt die Karte nach dem Sonnenstand. Nur bei Wechsel setzen, sonst liefe die
+    // Überblendung jede Sekunde neu an.
+    const zeitpunkt = tageszeit(jetzt);
+    if (karte.dataset.himmel !== zeitpunkt) karte.dataset.himmel = zeitpunkt;
     timer = setTimeout(takt, 1000 - (Date.now() % 1000) + 10);
   }
   takt();
 
   return {
-    element: h('section', { class: 'karte uhr', 'aria-label': 'Uhrzeit und Datum in Deutschland' },
-      zeit, tag, flugzeug()),
+    element: karte,
     takt,
     stoppen: () => clearTimeout(timer),
   };
