@@ -120,7 +120,11 @@ nicht überblenden. Der weiße Text ist auf allen vier Himmeln auf Kontrast gepr
 2. Einkommen, Fixkosten und Sparen sind nach Betrag sortiert, die größte Position steht oben.
    Jährliche Beträge zählen dabei mit ihrem Betrag pro Monat. Bei gleichem Betrag steht der ältere Eintrag oben.
 3. Sparziele sind nach Fortschritt in Prozent sortiert, das am weitesten fortgeschrittene Ziel steht oben.
-   Erreichte Ziele (100 % und mehr) stehen deshalb ganz oben.
+   Erreichte Ziele (100 % und mehr) stehen deshalb ganz oben. Oben rechts in der Karte steht, wie viel über alle
+   Ziele zusammen noch fehlt, unter der Liste die Summen (Ziele gesamt, bisher gespart, fehlt noch).
+   „Fehlt noch“ zählt je Ziel nur, was dort tatsächlich fehlt: Wer über ein Ziel hinaus gespart hat, gleicht damit
+   andere Ziele nicht aus. Deshalb ist „Fehlt noch“ nicht immer „Ziele gesamt“ minus „Bisher gespart“. Tritt dieser
+   Fall ein, steht ein Hinweis darunter, sonst nicht.
 4. Die Miete besteht aus einzelnen Positionen, zum Beispiel Miete, Strom und Internet. Jede Position hat einen
    Gesamtbetrag und meinen Anteil, beides monatlich. Mein Anteil darf nicht höher sein als der Gesamtbetrag.
    Die Positionen sind nach meinem Anteil sortiert, die größte steht oben. Unter der Liste stehen die Summen

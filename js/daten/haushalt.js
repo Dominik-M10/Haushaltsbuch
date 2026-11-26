@@ -63,6 +63,19 @@ export function monatsuebersicht({ einkommen, fixkosten, sparen, miete }) {
   return { einkommen: e, fixkosten: f, sparen: s, miete: m, rest: e - f - s - m };
 }
 
+/**
+ * Summen über alle Sparziele in Cent: Zielbeträge, bisher Gespartes und was noch fehlt.
+ * „Fehlt noch“ zählt je Ziel nur, was dort tatsächlich fehlt. Wer über ein Ziel hinaus gespart hat,
+ * gleicht damit andere Ziele nicht aus, darum ist es nicht einfach Ziel minus Gespartes.
+ */
+export function sparzielSummen(sparziele) {
+  return {
+    ziel: summeCent(sparziele, (z) => cent(z.zielbetrag)),
+    gespart: summeCent(sparziele, (z) => cent(z.bisher_gespart)),
+    fehlt: summeCent(sparziele, (z) => Math.max(0, cent(z.zielbetrag) - cent(z.bisher_gespart))),
+  };
+}
+
 /** Kurzinfo für die Kachel auf der Startseite */
 export async function kurzinfoHaushalt() {
   const daten = await ladeHaushalt();

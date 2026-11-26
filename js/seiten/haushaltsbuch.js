@@ -7,7 +7,8 @@ import { fehlertext } from '../fehler.js';
 import { bearbeitbareListe } from '../liste.js';
 import { segmentBalken } from '../diagramm.js';
 import {
-  cent, monatsbetragCent, ladeHaushalt, ladeSparziele, monatsuebersicht, haushaltCsv, sparzielFortschritt, summeCent,
+  cent, monatsbetragCent, ladeHaushalt, ladeSparziele, monatsuebersicht, haushaltCsv, sparzielFortschritt,
+  sparzielSummen, summeCent,
 } from '../daten/haushalt.js';
 import { exportKarte } from '../export.js';
 import { speichereZeile, loescheZeile } from '../daten/tabellen.js';
@@ -195,8 +196,13 @@ export function haushaltsbuchSeite(container, kontext) {
         : null,
     });
 
+    // Oben rechts und unter der Liste steht, wie weit alle Ziele zusammen sind
+    const zielSummen = sparzielSummen(d.sparziele);
     const sparziele = einfacheListe('sparziele', 'Sparziele', d.sparziele, {
       klasse: 'breit',
+      kopfWert: d.sparziele.length
+        ? (zielSummen.fehlt > 0 ? `noch ${euroAusCent(zielSummen.fehlt)}` : 'alle erreicht')
+        : null,
       leerText: 'Noch keine Sparziele angelegt.',
       neuText: 'Sparziel hinzufügen',
       felder: [
@@ -215,6 +221,21 @@ export function haushaltsbuchSeite(container, kontext) {
           unten: fortschrittsbalken(anteil, e.name),
         };
       },
+      unten: d.sparziele.length
+        ? [
+            h('dl', { class: 'werte summen' },
+              h('div', {}, h('dt', {}, 'Ziele gesamt'), h('dd', {}, euroAusCent(zielSummen.ziel))),
+              h('div', {}, h('dt', {}, 'Bisher gespart'), h('dd', {}, euroAusCent(zielSummen.gespart))),
+              h('div', {}, h('dt', {}, 'Fehlt noch'), h('dd', {}, euroAusCent(zielSummen.fehlt))),
+            ),
+            // Nur wenn irgendwo über das Ziel hinaus gespart wurde. Dann geht die naheliegende
+            // Rechnung „Ziele gesamt minus Bisher gespart“ nicht auf, und das sieht nach einem
+            // Fehler aus, obwohl es keiner ist.
+            zielSummen.ziel - zielSummen.gespart !== zielSummen.fehlt
+              ? h('p', { class: 'leise' }, 'Was über ein Ziel hinaus gespart ist, zählt nicht für die anderen Ziele.')
+              : null,
+          ]
+        : null,
     });
 
     inhalt.replaceChildren(

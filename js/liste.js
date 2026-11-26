@@ -16,7 +16,7 @@ import { fehlertext } from './fehler.js';
  *   loeschFrage(eintrag): Text für die Sicherheitsabfrage
  *   klasse: zusätzliche CSS Klasse für die Karte
  *   oben: optionales Element zwischen Titel und Liste, zum Beispiel ein Diagramm
- *   unten: optionales Element unter der Liste, zum Beispiel Summen
+ *   unten: optionales Element oder Elemente unter der Liste, zum Beispiel Summen
  */
 export function bearbeitbareListe(o) {
   let offen = null; // id des Eintrags im Bearbeitungsmodus oder 'neu'
