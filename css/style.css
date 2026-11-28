@@ -462,6 +462,10 @@ input, select, textarea, button {
     radial-gradient(18rem 10rem at var(--sonne-x) var(--sonne-y), var(--sonne), transparent 70%),
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 120' preserveAspectRatio='none'%3E%3Cpath d='M-10 112 C 110 8 290 8 410 100' fill='none' stroke='white' stroke-opacity='0.35' stroke-width='2.5' stroke-linecap='round' stroke-dasharray='1 9' vector-effect='non-scaling-stroke'/%3E%3C/svg%3E") center bottom / 100% 34% no-repeat,
     linear-gradient(170deg, var(--himmel-1) 0%, var(--himmel-2) 58%, var(--himmel-3) 100%);
+  /* Muss nach background stehen, die Kurzschreibweise setzt es sonst zurück.
+     Der Verlauf rechnet damit ab der äußeren Kante. Sonst wiederholt er sich in dem einen Pixel
+     unter dem Rand, und oben erscheint eine Linie in der Farbe des unteren Himmels. */
+  background-origin: border-box;
   box-shadow: var(--schatten);
   /* Der Wechsel der Tageszeit blendet über, statt zu springen */
   transition: --himmel-1 4s linear, --himmel-2 4s linear, --himmel-3 4s linear,
