@@ -1,6 +1,7 @@
 // Gemeinsame Datenbankfunktionen für alle Bereiche.
 import { db } from '../supabase.js';
 import { pruefeVerbindung } from '../fehler.js';
+import { standUeberholt } from '../zwischenspeicher.js';
 
 /** Wartet auf eine Supabase Anfrage und wirft den Fehler, falls einer kommt */
 export async function abfrage(anfrage) {
@@ -14,13 +15,16 @@ export async function speichereZeile(tabelle, werte, id) {
   pruefeVerbindung();
   if (id) {
     await abfrage(db.from(tabelle).update(werte).eq('id', id));
+    standUeberholt();
     return id;
   }
   const neu = await abfrage(db.from(tabelle).insert(werte).select('id').single());
+  standUeberholt();
   return neu.id;
 }
 
 export async function loescheZeile(tabelle, id) {
   pruefeVerbindung();
   await abfrage(db.from(tabelle).delete().eq('id', id));
+  standUeberholt();
 }

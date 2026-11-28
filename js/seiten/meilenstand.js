@@ -11,7 +11,9 @@ import { bearbeitbareListe } from '../liste.js';
 import { linienDiagramm } from '../liniendiagramm.js';
 import {
   ladeMeilenDaten, speichereProgramm, loescheProgramm, speichereStand, loescheStand, speichereZiel, loescheZiel, meilenCsv,
+  meilenDatenAusSpeicher,
 } from '../daten/meilen.js';
+import { gleicherStand } from '../zwischenspeicher.js';
 import { exportKarte } from '../export.js';
 import {
   QUELLEN, TYPEN, einheit, erreichbareProgramme, umrechnen, zuordnungText, verhaeltnisText, verlauf,
@@ -58,10 +60,17 @@ function ladeUndZeige(ziel, kontext, zeichnen) {
   async function laden() {
     const nummer = ++ladeNummer;
     const aktuell = () => kontext.aktiv() && nummer === ladeNummer;
+
+    // Der Stand vom letzten Mal steht sofort da, statt gut einer Sekunde „Wird geladen …“.
+    // Nach dem Speichern liefert der Zwischenspeicher nichts, der Stand wäre dort überholt.
+    const vorab = meilenDatenAusSpeicher();
+    if (vorab) zeichnen(vorab, laden);
+
     try {
       const daten = await ladeMeilenDaten();
       if (!aktuell()) return;
-      zeichnen(daten, laden);
+      // Hat sich nichts geändert, bleibt die Seite genau so stehen, wie sie ist
+      if (!gleicherStand(vorab, daten)) zeichnen(daten, laden);
     } catch (fehler) {
       console.error(fehler);
       if (!aktuell()) return;

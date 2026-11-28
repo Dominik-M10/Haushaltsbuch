@@ -3,7 +3,7 @@ import { db } from '../supabase.js';
 import { datum, zahl } from '../format.js';
 import { einheit, verlauf, aktuellerStand } from './programme.js';
 import { abfrage, speichereZeile, loescheZeile } from './tabellen.js';
-import { mitZwischenspeicher } from '../zwischenspeicher.js';
+import { mitZwischenspeicher, ausSpeicher } from '../zwischenspeicher.js';
 import { csvText, textZelle, zahlZelle } from '../export.js';
 
 export { einheit };
@@ -14,6 +14,14 @@ export async function ladeMeilenDaten() {
     abfrage(db.from('meilenstaende').select('*').order('datum').order('erstellt_am')),
     abfrage(db.from('meilenziele').select('*').order('erstellt_am')),
   ]));
+  return { programme, staende, ziele };
+}
+
+/** Die Meilendaten vom letzten Mal, ohne zu warten. null, wenn auf diesem Gerät noch nichts geladen wurde. */
+export function meilenDatenAusSpeicher() {
+  const roh = ausSpeicher('meilen');
+  if (!roh) return null;
+  const [programme, staende, ziele] = roh;
   return { programme, staende, ziele };
 }
 
@@ -40,11 +48,7 @@ export async function ladeLetztenStand() {
 }
 
 /** Kurzinfo für die Kachel auf der Startseite: Summe aller aktuellen Stände und der zuletzt geänderte Eintrag */
-export async function kurzinfoMeilen() {
-  const [staende, letzter] = await mitZwischenspeicher('meilen-kurzinfo', () => Promise.all([
-    abfrage(db.from('meilenstaende').select('programm_id, datum, stand, erstellt_am')),
-    ladeLetztenStand(),
-  ]));
+function kurzinfoAusStaenden([staende, letzter]) {
   if (!letzter) return { text: 'Noch kein Stand erfasst' };
 
   // Aktueller Stand je Programm ist der Eintrag mit dem jüngsten Datum, Meilen und Punkte zählen zusammen
@@ -55,6 +59,19 @@ export async function kurzinfoMeilen() {
     wert: zahl(summe),
     zusatz: `Zuletzt geändert: ${letzter.programme.name}, ${zahl(letzter.stand)} ${einheit(letzter.programme.typ)} vom ${datum(letzter.datum)}`,
   };
+}
+
+export async function kurzinfoMeilen() {
+  return kurzinfoAusStaenden(await mitZwischenspeicher('meilen-kurzinfo', () => Promise.all([
+    abfrage(db.from('meilenstaende').select('programm_id, datum, stand, erstellt_am')),
+    ladeLetztenStand(),
+  ])));
+}
+
+/** Dieselbe Kurzinfo aus dem Stand vom letzten Mal, ohne zu warten. null, wenn es keinen gibt. */
+export function kurzinfoMeilenAusSpeicher() {
+  const roh = ausSpeicher('meilen-kurzinfo');
+  return roh ? kurzinfoAusStaenden(roh) : null;
 }
 
 /** CSV mit allen Zwischenständen, nach Programm und Datum sortiert (für den Export) */

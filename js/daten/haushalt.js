@@ -3,7 +3,7 @@
 import { db } from '../supabase.js';
 import { euroAusCent, monatsname } from '../format.js';
 import { abfrage } from './tabellen.js';
-import { mitZwischenspeicher } from '../zwischenspeicher.js';
+import { mitZwischenspeicher, ausSpeicher } from '../zwischenspeicher.js';
 import { csvText, textZelle, betragZelle } from '../export.js';
 
 export function cent(wert) {
@@ -34,20 +34,30 @@ export function sparzielFortschritt(ziel) {
   return cent(ziel.bisher_gespart) / cent(ziel.zielbetrag);
 }
 
-export async function ladeHaushalt() {
-  const [einkommen, fixkosten, sparen, miete] = await mitZwischenspeicher('haushalt', () => Promise.all([
-    abfrage(db.from('einkommen').select('*').order('erstellt_am')),
-    abfrage(db.from('fixkosten').select('*').order('erstellt_am')),
-    abfrage(db.from('sparen').select('*').order('erstellt_am')),
-    abfrage(db.from('mietpositionen').select('*').order('erstellt_am')),
-  ]));
-  // Größte Position oben, jährliche Beträge zählen mit ihrem Betrag pro Monat, bei der Miete zählt mein Anteil
+// Größte Position oben, jährliche Beträge zählen mit ihrem Betrag pro Monat, bei der Miete zählt mein Anteil.
+// Eigene Funktion, damit gespeicherte und frisch geladene Daten genau gleich aufbereitet werden.
+function ordneHaushalt([einkommen, fixkosten, sparen, miete]) {
   return {
     einkommen: absteigend(einkommen, monatsbetragCent),
     fixkosten: absteigend(fixkosten, monatsbetragCent),
     sparen: absteigend(sparen, monatsbetragCent),
     miete: absteigend(miete, meinAnteilCent),
   };
+}
+
+export async function ladeHaushalt() {
+  return ordneHaushalt(await mitZwischenspeicher('haushalt', () => Promise.all([
+    abfrage(db.from('einkommen').select('*').order('erstellt_am')),
+    abfrage(db.from('fixkosten').select('*').order('erstellt_am')),
+    abfrage(db.from('sparen').select('*').order('erstellt_am')),
+    abfrage(db.from('mietpositionen').select('*').order('erstellt_am')),
+  ])));
+}
+
+/** Der Haushalt vom letzten Mal, ohne zu warten. null, wenn auf diesem Gerät noch nichts geladen wurde. */
+export function haushaltAusSpeicher() {
+  const roh = ausSpeicher('haushalt');
+  return roh ? ordneHaushalt(roh) : null;
 }
 
 export function summeCent(liste, betrag) {
@@ -76,9 +86,7 @@ export function sparzielSummen(sparziele) {
   };
 }
 
-/** Kurzinfo für die Kachel auf der Startseite */
-export async function kurzinfoHaushalt() {
-  const daten = await ladeHaushalt();
+function kurzinfoAusHaushalt(daten) {
   const leer = !daten.einkommen.length && !daten.fixkosten.length && !daten.sparen.length && !daten.miete.length;
   if (leer) return { text: 'Noch keine Einträge' };
 
@@ -90,10 +98,27 @@ export async function kurzinfoHaushalt() {
   };
 }
 
+/** Kurzinfo für die Kachel auf der Startseite */
+export async function kurzinfoHaushalt() {
+  return kurzinfoAusHaushalt(await ladeHaushalt());
+}
+
+/** Dieselbe Kurzinfo aus dem Stand vom letzten Mal, ohne zu warten. null, wenn es keinen gibt. */
+export function kurzinfoHaushaltAusSpeicher() {
+  const daten = haushaltAusSpeicher();
+  return daten ? kurzinfoAusHaushalt(daten) : null;
+}
+
 /** Sparziele mit dem größten Fortschritt oben */
 export async function ladeSparziele() {
   const ziele = await mitZwischenspeicher('sparziele', () => abfrage(db.from('sparziele').select('*').order('erstellt_am')));
   return absteigend(ziele, sparzielFortschritt);
+}
+
+/** Die Sparziele vom letzten Mal, ohne zu warten. null, wenn noch nichts geladen wurde. */
+export function sparzieleAusSpeicher() {
+  const roh = ausSpeicher('sparziele');
+  return roh ? absteigend(roh, sparzielFortschritt) : null;
 }
 
 /** CSV mit allen Einträgen des Haushaltsbuchs (für den Export) */

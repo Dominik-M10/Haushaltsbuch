@@ -172,6 +172,27 @@ Die CSV Dateien sind für Excel und Numbers mit deutschen Einstellungen gemacht:
 Komma bei Beträgen, Datum als TT.MM.JJJJ. Texte, die mit = + - oder @ beginnen, bekommen ein ' davor,
 damit Tabellenprogramme sie nicht als Formel ausführen.
 
+## Seiten öffnen sofort
+
+Beim Öffnen einer Seite steht zuerst der Stand vom letzten Mal da, der auf dem Gerät gespeichert ist. Die frischen
+Daten werden im Hintergrund geholt und ersetzen ihn. Vorher wartete jede Seite auf den Server, gemessen 1,2 bis
+1,7 Sekunden mit „Wird geladen …“; jetzt sind es 19 bis 36 Millisekunden.
+
+1. `ausSpeicher(name)` in `js/zwischenspeicher.js` liefert den gespeicherten Stand, ohne zu warten. Anders als beim
+   Lesen in `mitZwischenspeicher` meldet es keinen Hinweis: der Stand ist gleich wieder ersetzt. Der Hinweis „Du
+   siehst den Stand vom …“ erscheint weiterhin nur, wenn die frischen Daten wirklich ausbleiben.
+2. Jede Ladefunktion hat eine Fassung aus dem Speicher (`haushaltAusSpeicher`, `sparzieleAusSpeicher`,
+   `meilenDatenAusSpeicher`, `kurzinfoHaushaltAusSpeicher`, `kurzinfoMeilenAusSpeicher`). Beide Wege teilen sich die
+   Aufbereitung, damit gespeicherte und frische Daten gleich sortiert und gerechnet werden.
+3. Sind die frischen Daten gleich dem schon gezeigten Stand, baut sich die Seite nicht noch einmal auf
+   (`gleicherStand`). Das vermeidet Flackern, und eine gerade begonnene Eingabe geht nicht verloren.
+4. Nach dem Speichern oder Löschen merkt sich `standUeberholt()` den Zeitpunkt. Jeder ältere Stand wird danach
+   nicht mehr vorab gezeigt, sonst stünde dort kurz der Wert von vorher. Gelöscht wird nichts: der Stand bleibt
+   für den Fall ohne Verbindung erhalten.
+5. Ist auf dem Gerät noch nichts gespeichert, erscheint wie bisher „Wird geladen …“.
+6. Eine Änderung auf einem anderen Gerät kennt die App nicht. Dann steht beim Öffnen kurz der eigene letzte Stand
+   da und wird ersetzt, sobald die frischen Daten eintreffen.
+
 ## Ohne Verbindung
 
 1. Die App legt ihre Dateien über einen Service Worker (`sw.js`) auf dem Gerät ab. Jede Datei kommt zuerst

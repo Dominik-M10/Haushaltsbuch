@@ -8,8 +8,9 @@ import { bearbeitbareListe } from '../liste.js';
 import { segmentBalken } from '../diagramm.js';
 import {
   cent, monatsbetragCent, ladeHaushalt, ladeSparziele, monatsuebersicht, haushaltCsv, sparzielFortschritt,
-  sparzielSummen, summeCent,
+  sparzielSummen, summeCent, haushaltAusSpeicher, sparzieleAusSpeicher,
 } from '../daten/haushalt.js';
+import { gleicherStand } from '../zwischenspeicher.js';
 import { exportKarte } from '../export.js';
 import { speichereZeile, loescheZeile } from '../daten/tabellen.js';
 
@@ -93,10 +94,23 @@ export function haushaltsbuchSeite(container, kontext) {
   async function laden() {
     const nummer = ++ladeNummer;
     const aktuell = () => kontext.aktiv() && nummer === ladeNummer;
+
+    // Der Stand vom letzten Mal steht sofort da, statt gut einer Sekunde „Wird geladen …“.
+    // Nach dem Speichern liefert der Zwischenspeicher nichts, der Stand wäre dort überholt.
+    let vorab = null;
+    const gespeicherterHaushalt = haushaltAusSpeicher();
+    const gespeicherteZiele = sparzieleAusSpeicher();
+    if (gespeicherterHaushalt && gespeicherteZiele) {
+      vorab = { ...gespeicherterHaushalt, sparziele: gespeicherteZiele };
+      zeichnen(vorab);
+    }
+
     try {
       const [haushalt, sparziele] = await Promise.all([ladeHaushalt(), ladeSparziele()]);
       if (!aktuell()) return;
-      zeichnen({ ...haushalt, sparziele });
+      const frisch = { ...haushalt, sparziele };
+      // Hat sich nichts geändert, bleibt die Seite genau so stehen, wie sie ist
+      if (!gleicherStand(vorab, frisch)) zeichnen(frisch);
     } catch (fehler) {
       console.error(fehler);
       if (!aktuell()) return;

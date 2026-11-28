@@ -5,6 +5,7 @@ import { ZEITZONE } from '../format.js';
 import { tageszeit } from '../himmel.js';
 import { bereiche } from '../bereiche.js';
 import { sperreAktiv, sperreMoeglich, sperreEinschalten, sperreAusschalten } from '../sperre.js';
+import { gleicherStand } from '../zwischenspeicher.js';
 
 // Immer deutsche Zeit, egal welche Zeitzone am Gerät eingestellt ist
 const zeitFormat = new Intl.DateTimeFormat('de-DE', {
@@ -73,18 +74,26 @@ function kachel(bereich, kontext) {
     info,
   );
 
+  const zeigen = (k) => {
+    const teile = k.text
+      ? [h('p', { class: 'kachel-beschriftung' }, k.text)]
+      : [
+          h('p', { class: 'kachel-beschriftung' }, k.beschriftung),
+          h('p', { class: k.negativ ? 'kachel-wert negativ' : 'kachel-wert' }, k.wert),
+          k.zusatz ? h('p', { class: 'kachel-zusatz' }, k.zusatz) : null,
+        ];
+    info.replaceChildren(...teile.filter(Boolean));
+  };
+
   async function laden() {
+    // Der Stand vom letzten Mal steht sofort in der Kachel, statt gut einer Sekunde „Wird geladen …“
+    const vorab = bereich.kurzinfoAusSpeicher?.() ?? null;
+    if (vorab) zeigen(vorab);
     try {
       const k = await bereich.kurzinfo();
       if (!kontext.aktiv()) return;
-      const teile = k.text
-        ? [h('p', { class: 'kachel-beschriftung' }, k.text)]
-        : [
-            h('p', { class: 'kachel-beschriftung' }, k.beschriftung),
-            h('p', { class: k.negativ ? 'kachel-wert negativ' : 'kachel-wert' }, k.wert),
-            k.zusatz ? h('p', { class: 'kachel-zusatz' }, k.zusatz) : null,
-          ];
-      info.replaceChildren(...teile.filter(Boolean));
+      // Hat sich nichts geändert, bleibt die Kachel genau so stehen, wie sie ist
+      if (!gleicherStand(vorab, k)) zeigen(k);
     } catch (fehler) {
       console.error(fehler);
       if (!kontext.aktiv()) return;
