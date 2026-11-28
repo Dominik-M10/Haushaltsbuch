@@ -96,6 +96,9 @@ nicht überblenden. Der weiße Text ist auf allen vier Himmeln auf Kontrast gepr
    sich nicht, sonst liefe die Bewegung auf ihm ab statt auf dem Inhalt danach.
    Die Richtung steht währenddessen als `data-wechsel` am `<html>` (`vor`, `zurueck` oder `seite`). Kennt ein
    Browser View Transitions nicht, blendet der neue Inhalt wie bisher ein und der alte verschwindet ohne Bewegung.
+   Steht der Inhalt beim Wechsel schon da, zeigt ihn der Übergang selbst und die Karten blenden nicht zusätzlich
+   einzeln ein. Täten sie es, liefe die Bewegung nach dem Übergang noch gut 200 Millisekunden weiter und wirkte
+   wie ein Nachzittern. Nur wenn die Seite noch lädt, blenden die später eintreffenden Karten ein.
 3. Karten, die beim Öffnen noch unter dem Bildschirmrand liegen, erscheinen beim Scrollen. Fortschrittsbalken und das
    Diagramm wachsen von links, sobald sie im Bild sind.
 4. Formulare in den Karten, der Hinweis ohne Verbindung und der Sperrbildschirm blenden kurz ein. Knöpfe geben beim

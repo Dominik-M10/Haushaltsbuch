@@ -77,10 +77,15 @@ export function seitenwechsel(container, route, aufbauen) {
   // Die Richtung steht am <html>, weil die Bilder des Übergangs dort hängen, nicht am Container
   document.documentElement.dataset.wechsel = richtung ?? 'seite';
   const uebergang = document.startViewTransition(() => {
-    // Keine Richtung am Container: die zeigt der Übergang schon. Später eintreffende Karten blenden nur ein.
-    container.classList.add('wechsel');
-    zeitgeber = setTimeout(zuruecksetzen, WECHSEL_DAUER_MS);
     aufbauen();
+    // Steht der Inhalt schon da, zeigt ihn der Übergang selbst. Blendeten die Karten zusätzlich
+    // einzeln ein, liefe die Bewegung nach dem Übergang noch weiter und wirkte wie ein Nachzittern.
+    // Nur wenn die Seite noch lädt, blenden die später eintreffenden Karten ein.
+    if (container.querySelector('.laden')) {
+      // Keine Richtung am Container: die zeigt der Übergang schon
+      container.classList.add('wechsel');
+      zeitgeber = setTimeout(zuruecksetzen, WECHSEL_DAUER_MS);
+    }
   });
   // Löst ein schneller zweiter Wechsel den ersten ab, lehnt der Browser dessen Zusagen ab.
   // Das ist normal, muss aber abgefangen werden, sonst landet eine Meldung in der Konsole.
